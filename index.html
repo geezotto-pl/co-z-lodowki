@@ -367,7 +367,7 @@ const R=[
 {n:"Wrap z kurczakiem",m:"ok",t:20,s:2,k:450,p:34,f:12,c:48,i:{tortilla:"2 szt.",kurczak:"200 g",salata:"kilka liści",pomidory:"1 szt."},o:{jogurt:"3 łyżki",ogorek:"½ szt.",kukurydza:"3 łyżki"},st:["Usmaż przyprawionego kurczaka w paskach.","Podgrzej tortille na suchej patelni.","Ułóż sałatę, pomidora i kurczaka, polej jogurtem z czosnkiem, zawiń."]},
 {n:"Indyk z warzywami i kuskusem",m:"ok",t:25,s:2,k:560,p:45,f:10,c:70,i:{indyk:"300 g",kuskus:"150 g",cukinia:"1 szt.",papryka:"1 szt."},o:{czosnek:"1 ząbek",natka:"garść",cytryna:"½ szt."},st:["Zalej kuskus wrzątkiem 1:1,5 z solą, przykryj na 5 minut.","Usmaż indyka w paskach, dodaj warzywa w kostce.","Smaż 5–7 minut, podawaj z kuskusem."]},
 {n:"Kotlet schabowy z ziemniakami",m:"o",t:40,s:2,k:780,p:50,f:36,c:62,i:{schab:"400 g",jajka:"1 szt.",bulka_tarta:"60 g",ziemniaki:"600 g"},o:{maka:"2 łyżki",koperek:"do ziemniaków",kapusta:"na surówkę",ogorek_kiszony:"do podania"},st:["Ugotuj ziemniaki.","Rozbij schab na cienkie kotlety, dopraw, obtocz w mące, jajku i bułce tartej.","Smaż na rozgrzanym tłuszczu po 3–4 minuty z każdej strony."]},
-{n:"Kotlety mielone z ziemniakami",m:"o",t:45,s:4,k:590,p:32,f:30,c:45,i:{mielone:"500 g",jajka:"1 szt.",cebula:"1 szt.",chleb:"1 kromka",ziemniaki:"800 g"},o:{bulka_tarta:"do obtoczenia",ogorek:"na mizerię",smietana:"na mizerię",koperek:"garść"},st:["Namocz chleb, odciśnij. Wymieszaj z mięsem, jajkiem, startą cebulą i przyprawami.","Uformuj kotlety, obtocz w bułce i smaż po 5–6 minut z każdej strony.","Podawaj z ugotowanymi ziemniakami."]},
+{n:"Kotlety mielone",m:"ok",t:35,s:4,k:390,p:26,f:26,c:12,i:{mielone:"500 g",jajka:"1 szt.",cebula:"1 szt.",bulka_tarta:"do obtoczenia"},o:{chleb:"1 kromka (do masy)",czosnek:"1 ząbek",ziemniaki:"do podania",ogorek:"na mizerię",smietana:"na mizerię",koperek:"garść"},st:["Namocz kromkę chleba w wodzie lub mleku i odciśnij (albo dodaj 2 łyżki bułki tartej).","Wymieszaj mięso z jajkiem, startą cebulą, chlebem, solą, pieprzem i czosnkiem. Wyrabiaj ręką 2–3 minuty.","Uformuj kotlety, obtocz w bułce tartej i smaż na rozgrzanym oleju po 5–6 minut z każdej strony.","Podawaj z ziemniakami i mizerią albo surówką."]},
 {n:"Pulpety w sosie pomidorowym",m:"o",t:45,s:4,k:420,p:30,f:24,c:18,i:{mielone:"500 g",jajka:"1 szt.",bulka_tarta:"40 g",passata:"500 g"},o:{cebula:"1 szt.",czosnek:"2 ząbki",ryz:"do podania",makaron:"do podania"},st:["Wymieszaj mięso z jajkiem, bułką tartą i przyprawami, uformuj kulki.","Obsmaż je krótko lub od razu włóż do zagotowanej passaty.","Duś pod przykryciem 20–25 minut."]},
 {n:"Gołąbki leniwe",m:"o",t:50,s:4,k:430,p:26,f:20,c:36,i:{kapusta:"½ główki",mielone:"500 g",ryz:"100 g",passata:"500 g"},o:{cebula:"1 szt.",jajka:"1 szt."},st:["Ugotuj ryż. Kapustę posiekaj i sparz wrzątkiem.","Wymieszaj mięso, ryż i kapustę, dopraw, uformuj kotlety.","Obsmaż i duś w passacie ok. 25 minut."]},
 {n:"Chili con carne",m:"o",t:40,s:3,k:520,p:36,f:22,c:40,i:{mielone:"300 g",fasola:"400 g",passata:"500 g",cebula:"1 szt.",czosnek:"2 ząbki"},o:{kukurydza:"1 puszka",papryka:"1 szt.",ryz:"do podania"},st:["Podsmaż cebulę i czosnek, dodaj mięso i zrumień.","Dopraw papryką, kuminem lub chili.","Dodaj passatę i odsączoną fasolę, duś 20 minut."]},
@@ -1075,6 +1075,11 @@ function renderFavs(){
 }
 rebuild();
 setMeal();renderPick();
+// zmiana nazwy przepisu: "Kotlety mielone z ziemniakami" -> "Kotlety mielone"
+(function(){const a="kotlety mielone z ziemniakami",b="kotlety mielone";let ch=false;
+  if(HIST[a]){HIST[b]=Object.assign({},HIST[a],{name:"Kotlety mielone"});delete HIST[a];saveHist();ch=true}
+  if(FAV.delete(a)){FAV.add(b);saveFav();ch=true}
+  if(HIDE.delete(a)){HIDE.add(b);saveHide();ch=true}})();
 // ---- samouczek przy pierwszym uruchomieniu ----
 let obI=0;const OBN=3;
 function obGo(i){obI=Math.max(0,Math.min(OBN-1,i));$("obSlides").style.transform=`translateX(${-100*obI}%)`;
