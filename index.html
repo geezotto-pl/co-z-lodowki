@@ -691,7 +691,12 @@ function renderFavs(){
 }
 rebuild();
 setMeal();renderPick();
+// przeniesienie danych ze starej wersji aplikacji (APK 1.x) — przychodzą w adresie jako #import=...
+if(location.hash.startsWith("#import=")){
+  try{const t=decodeURIComponent(location.hash.slice(8));addPack(t,"Kopia");renderPick()}catch(e){}
+  try{history.replaceState(null,"",location.pathname+location.search)}catch(e){}
+}
 </script>
-<script>if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").catch(()=>{})})}</script>
+<script>if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost")){window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").catch(()=>{})})}</script>
 </body>
 </html>
