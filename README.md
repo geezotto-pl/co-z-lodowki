@@ -13,3 +13,6 @@ Aplikacja, która podpowiada, co ugotować z produktów, które masz w domu. Dzi
 - Produkty, które zawsze masz w domu (⭐), zaznaczasz tylko raz.
 - Ulubione, historia gotowania i opcja „nie proponuj”.
 - Dodatkowe pakiety przepisów, także przygotowane przez AI.
+
+## Aktualizacje
+Każda zmiana w gałęzi `main` publikuje się sama (GitHub Actions → Pages). Aplikacje na iPhonie i Androidzie (APK 2.0+) pobierają nową wersję przy następnym otwarciu z internetem.
