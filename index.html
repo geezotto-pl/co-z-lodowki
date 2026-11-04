@@ -77,6 +77,21 @@ main{max-width:720px;margin:0 auto;padding:0 16px 190px}
 .bar .btn.sec{padding:12px 11px}
 .gl{overflow:hidden;text-overflow:ellipsis}
 @media (max-width:420px){.count{display:none}}
+.ob{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;flex-direction:column;padding:16px 20px calc(20px + env(safe-area-inset-bottom))}
+.ob-top{display:flex;justify-content:flex-end}
+.ob-skip{background:none;border:0;color:var(--muted);font:inherit;font-size:15px;padding:8px;cursor:pointer}
+.ob-track{flex:1;display:flex;overflow:hidden;touch-action:pan-y}
+.ob-slides{display:flex;width:100%;transition:transform .3s ease}
+.ob-s{flex:0 0 100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 8px;box-sizing:border-box}
+.ob-ico{font-size:64px;width:120px;height:120px;border-radius:32px;background:#fff;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;margin-bottom:24px}
+.ob-s h2{font-family:Fraunces,serif;font-size:26px;margin:0 0 12px}
+.ob-s p{color:var(--muted);font-size:16px;line-height:1.5;margin:0 0 10px;max-width:420px}
+.ob-s p b{color:var(--ink)}
+.ob-dots{display:flex;justify-content:center;gap:8px;margin:12px 0 18px}
+.ob-dots i{width:8px;height:8px;border-radius:99px;background:var(--line);transition:.2s}
+.ob-dots i.on{width:24px;background:var(--acc)}
+.ob-btns{display:flex;flex-direction:column;gap:10px;max-width:420px;width:100%;margin:0 auto}
+.ob-btns .btn{width:100%}
 .gn{flex:0 0 auto;background:rgba(255,255,255,.25);border-radius:999px;padding:1px 8px;font-size:13px}
 .btn{border:0;border-radius:12px;padding:14px 16px;font:inherit;font-weight:700;cursor:pointer}
 .btn.pri{background:var(--acc);color:#fff;flex:1}
@@ -227,6 +242,10 @@ pre{background:var(--bg);border-radius:10px;padding:10px;font-size:12px;overflow
       <h3>Historia gotowania</h3>
       <div id="histList"></div>
     </div>
+    <div class="card">
+      <h3>Pomoc</h3>
+      <div class="row"><button class="btn sec" id="obReplay">Pokaż samouczek</button></div>
+    </div>
     <details class="card adv">
       <summary>🛠 Dla zaawansowanych: własne przepisy</summary>
       <p class="small" style="margin:10px 0 6px">Możesz dodać dowolne przepisy — najłatwiej poprosić o nie czat AI (np. Claude) i wkleić odpowiedź tutaj.</p>
@@ -253,6 +272,22 @@ pre{background:var(--bg);border-radius:10px;padding:10px;font-size:12px;overflow
     </details>
   </section>
 </main>
+<div class="ob hide" id="ob" role="dialog" aria-label="Samouczek">
+  <div class="ob-top"><button class="ob-skip" id="obSkip">Pomiń</button></div>
+  <div class="ob-track" id="obTrack"><div class="ob-slides" id="obSlides">
+    <div class="ob-s"><div class="ob-ico">🛒</div><h2>Co masz w lodówce?</h2>
+      <p>Wybierz u góry <b>posiłek</b> — śniadanie, obiad, kolację albo deser.</p>
+      <p>Potem <b>zaznacz produkty</b>, które masz, i stuknij <b>„Pokaż dania”</b>. Dostaniesz przepisy z kaloriami i makro.</p></div>
+    <div class="ob-s"><div class="ob-ico">⭐</div><h2>Zawsze w domu</h2>
+      <p>Jajka, mleko, mąka? Zaznacz je <b>raz</b> w zakładce <b>„Zawsze mam w domu”</b> — nie trzeba będzie ich klikać za każdym razem.</p>
+      <p>Gdy coś się skończy, po prostu stuknij to na liście.</p></div>
+    <div class="ob-s"><div class="ob-ico">❤️</div><h2>Twoje dania</h2>
+      <p>Przy daniu stuknij <b>♡</b>, żeby dodać je do ulubionych, <b>„Zrobiłem to”</b>, żeby aplikacja proponowała coś nowego, albo <b>„Nie proponuj”</b>, gdy czegoś nie lubisz.</p>
+      <p>Wszystko znajdziesz w zakładce <b>Historia</b>, a więcej przepisów — w <b>Ustawieniach</b>.</p></div>
+  </div></div>
+  <div class="ob-dots" id="obDots"><i class="on"></i><i></i><i></i></div>
+  <div class="ob-btns"><button class="btn pri" id="obNext">Dalej</button><button class="btn sec hide" id="obStaples">⭐ Ustaw stałe produkty</button></div>
+</div>
 <nav class="tabs" id="tabs">
   <button data-tab="pick" class="on"><span class="ti">🛒</span>Produkty</button>
   <button data-tab="favs"><span class="ti">❤️</span>Historia</button>
@@ -682,6 +717,7 @@ if(window.top===window){const h=$("webHint");if(h)h.classList.add("hide")}
 if(window.Android){const h=$("webHint");if(h)h.classList.add("hide");document.documentElement.classList.add("in-app")}
 // przycisk „wstecz” w aplikacji na Androida
 window.appBack=function(){
+  if(!$("ob").classList.contains("hide")){obClose();return}
   if($("pick").classList.contains("hide")){showPick();return}
   if($("q").value){$("q").value="";filter();return}
   if(mode==="staple"){mode="today";renderPick();return}
@@ -707,6 +743,25 @@ function renderFavs(){
 }
 rebuild();
 setMeal();renderPick();
+// ---- samouczek przy pierwszym uruchomieniu ----
+let obI=0;const OBN=3;
+function obGo(i){obI=Math.max(0,Math.min(OBN-1,i));$("obSlides").style.transform=`translateX(${-100*obI}%)`;
+  document.querySelectorAll("#obDots i").forEach((d,k)=>d.classList.toggle("on",k===obI));
+  const last=obI===OBN-1;$("obNext").textContent=last?"Zaczynamy":"Dalej";$("obStaples").classList.toggle("hide",!last);$("obSkip").style.visibility=last?"hidden":"visible"}
+function obOpen(){obGo(0);$("ob").classList.remove("hide")}
+function obClose(){$("ob").classList.add("hide");try{localStorage.setItem("lodowka_onboarded","1")}catch(e){}}
+$("obNext").onclick=()=>{obI<OBN-1?obGo(obI+1):obClose()};
+$("obSkip").onclick=obClose;
+$("obStaples").onclick=()=>{obClose();mode="staple";showPick();renderPick()};
+$("obReplay").onclick=obOpen;
+{let x0=null;const t=$("obTrack");t.addEventListener("touchstart",e=>{x0=e.touches[0].clientX},{passive:true});
+ t.addEventListener("touchend",e=>{if(x0===null)return;const dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>40)obGo(obI+(dx<0?1:-1));x0=null})}
+try{
+  if(!localStorage.getItem("lodowka_onboarded")){
+    const used=staples.size||FAV.size||Object.keys(HIST).length||PACKS.length||location.hash.startsWith("#import=");
+    if(used)localStorage.setItem("lodowka_onboarded","1");else obOpen();
+  }
+}catch(e){}
 // przeniesienie danych ze starej wersji aplikacji (APK 1.x) — przychodzą w adresie jako #import=...
 if(location.hash.startsWith("#import=")){
   try{const t=decodeURIComponent(location.hash.slice(8));addPack(t,"Kopia");renderPick()}catch(e){}
