@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Co z lodówki?</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Co z lodówki">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#FBF7F0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#FBF7F0;--card:#fff;--ink:#2B2620;--muted:#7A7064;--line:#EADFD0;--acc:#D9502F;--acc2:#F6E2D8;--ok:#3E7C4E;--ok2:#E2EFE4;--warn:#B7791F;--warn2:#FBEFD9}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 "DM Sans",system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
+header{padding:20px 16px 4px;max-width:720px;margin:0 auto}
+h1{font-family:Fraunces,serif;font-size:28px;margin:0;letter-spacing:-.01em}
+h1 span{color:var(--acc)}
+.sub{color:var(--muted);margin:4px 0 0}
+main{max-width:720px;margin:0 auto;padding:0 16px 190px}
+.meals{display:flex;gap:6px;overflow-x:auto;padding:12px 0 2px;scrollbar-width:none}
+.meals::-webkit-scrollbar{display:none}
+.meal{flex:0 0 auto;border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:9px 14px;font:inherit;font-size:14px;font-weight:500;cursor:pointer;color:var(--ink)}
+.meal.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.search{position:sticky;top:0;z-index:5;background:var(--bg);padding:10px 0}
+.search input{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;font:inherit;background:#fff;outline:none}
+.search input:focus{border-color:var(--acc)}
+.cat{background:#fff;border:1px solid var(--line);border-radius:14px;margin:8px 0;overflow:hidden}
+.cat-h{width:100%;display:flex;align-items:center;gap:10px;background:none;border:0;padding:14px;font:inherit;cursor:pointer;color:var(--ink);text-align:left}
+.cat-h .ico{font-size:20px;width:26px;text-align:center}
+.cat-h .nm{font-weight:700;flex:1}
+.cat-h .ct{font-size:12px;color:var(--muted);background:var(--bg);border-radius:999px;padding:3px 9px}
+.cat-h .ct.has{background:var(--acc2);color:var(--acc);font-weight:700}
+.cat-h .chev{color:var(--muted);transition:transform .15s}
+.cat.open .chev{transform:rotate(90deg)}
+.cat-b{display:none;padding:0 14px 14px}
+.cat.open .cat-b{display:block}
+.cat-tools{display:flex;justify-content:flex-end;margin-bottom:8px}
+.cat-tools button{background:none;border:0;color:var(--acc);font:inherit;font-size:13px;cursor:pointer;padding:2px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:8px 13px;font:inherit;font-size:14px;cursor:pointer;color:var(--ink);transition:.12s}
+.chip.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.chip.hidden{display:none}
+.chip.staple{background:var(--ok);border-color:var(--ok);color:#fff}
+.chip.staple.out{background:#fff;color:var(--muted);border-color:var(--line);text-decoration:line-through}
+.smode .chip.on:not(.staple){background:#fff;color:var(--ink);border-color:var(--line)}
+.staplebox{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:8px 0}
+.staplebox h4{margin:0 0 8px;font-size:14px}
+#modeHint{margin:0 0 4px}
+.cookrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.cook{border:1.5px solid var(--ok);background:var(--ok2);color:var(--ok);border-radius:10px;padding:9px 14px;font:inherit;font-weight:700;cursor:pointer}
+.card.dim{opacity:.55}
+.badge.no{background:#EEE8E0;color:var(--muted)}
+.nope{border:1.5px solid var(--line);background:#fff;color:var(--muted);border-radius:10px;padding:9px 12px;font:inherit;font-size:13px;cursor:pointer}
+.cook.undo{border-color:var(--line);background:#fff;color:var(--muted)}
+.hist{flex:1}
+.hrow{display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-top:1px solid var(--line);font-size:14px}
+.hrow:first-child{border-top:0}
+.hbtns{display:flex;gap:6px}
+.card-h{display:flex;align-items:flex-start;gap:8px}
+.card-h h3{flex:1}
+.fav{border:0;background:none;font-size:24px;line-height:1;cursor:pointer;padding:2px 2px 0;color:var(--acc)}
+.badge.fav-b{background:#FCE4E4;color:#C0392B}
+.often{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--line);font-size:14px}
+.often:first-child{border-top:0}
+.often span{flex:1}
+.often button{border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:6px 10px;font:inherit;font-size:13px;cursor:pointer;color:var(--acc);font-weight:700}
+.note{font-size:13px;color:var(--muted);background:#fff;border:1px dashed var(--line);border-radius:12px;padding:10px 12px;margin-top:14px}
+.bar{position:fixed;left:0;right:0;bottom:calc(62px + env(safe-area-inset-bottom));background:rgba(251,247,240,.96);backdrop-filter:blur(6px);border-top:1px solid var(--line);padding:10px 16px}
+.bar .in{max-width:720px;margin:0 auto;display:flex;gap:10px;align-items:center}
+.btn{border:0;border-radius:12px;padding:14px 16px;font:inherit;font-weight:700;cursor:pointer}
+.btn.pri{background:var(--acc);color:#fff;flex:1}
+.btn.pri:disabled{opacity:.45;cursor:default}
+.btn.sec{background:#fff;border:1.5px solid var(--line);color:var(--ink)}
+.count{font-size:13px;color:var(--muted);min-width:64px}
+.seg{display:flex;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:3px;margin:12px 0}
+.seg button{flex:1;border:0;background:none;padding:9px 6px;border-radius:9px;font:inherit;font-size:13px;cursor:pointer;color:var(--muted)}
+.seg button.on{background:var(--ink);color:#fff}
+.toggle{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted);margin:4px 0 10px;cursor:pointer}
+.toggle input{accent-color:var(--acc);width:18px;height:18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:12px 0}
+.card h3{font-family:Fraunces,serif;font-size:20px;margin:0 0 6px}
+.meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--muted)}
+.badge{font-size:12px;font-weight:700;border-radius:999px;padding:3px 9px}
+.badge.ok{background:var(--ok2);color:var(--ok)}
+.badge.warn{background:var(--warn2);color:var(--warn)}
+.tag{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:2px 8px}
+.macros{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:12px 0 4px}
+.m{background:var(--bg);border-radius:10px;padding:8px 4px;text-align:center}
+.m b{display:block;font-size:17px}
+.m small{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.05em}
+.ing{list-style:none;padding:0;margin:10px 0 6px;display:grid;gap:4px}
+.ing li{display:flex;gap:8px;font-size:14px}
+.ing li i{font-style:normal;width:18px;text-align:center;font-weight:700}
+.ing li.have i{color:var(--ok)}
+.ing li.miss{color:var(--acc)}
+.ing li.opt{color:var(--muted)}
+.ing .amt{color:var(--muted);margin-left:auto;white-space:nowrap;padding-left:8px}
+details summary{cursor:pointer;font-weight:700;color:var(--acc);margin-top:6px;list-style:none}
+details summary::-webkit-details-marker{display:none}
+details summary::before{content:"▸ "}
+details[open] summary::before{content:"▾ "}
+ol.steps{padding-left:20px;margin:8px 0 0}
+ol.steps li{margin:6px 0}
+.empty{text-align:center;color:var(--muted);padding:40px 10px}
+.back{background:none;border:0;color:var(--acc);font:inherit;font-weight:700;cursor:pointer;padding:10px 0 0}
+.hide{display:none!important}
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;background:#fff;border-top:1px solid var(--line);padding:4px 8px calc(4px + env(safe-area-inset-bottom))}
+.tabs button{flex:1;border:0;background:none;font:inherit;font-size:12px;font-weight:500;color:var(--muted);padding:6px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;border-radius:12px}
+.tabs .ti{font-size:20px;line-height:1.1;filter:grayscale(1);opacity:.7}
+.tabs button.on{color:var(--acc);font-weight:700}
+.tabs button.on .ti{filter:none;opacity:1}
+details.adv summary{color:var(--ink);font-size:15px}
+.rec summary{list-style:none;display:flex;justify-content:space-between;gap:8px;padding:9px 0;border-top:1px solid var(--line);cursor:pointer;font-size:14px;color:var(--ink);font-weight:500;margin:0}
+.rec summary::before{content:none!important}
+.rec:first-child summary{border-top:0}
+.rec .card{margin:4px 0 12px}
+.card .card{padding:12px;margin:10px 0}
+.small{font-size:12px;color:var(--muted)}
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px 10px;flex-wrap:wrap}
+.top h1{white-space:nowrap}
+.hbtn{border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:8px 12px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;color:var(--ink);white-space:nowrap}
+.h2{font-family:Fraunces,serif;font-size:22px;margin:10px 0 2px}
+.file{display:block;text-align:center;margin:6px 0}
+.filewrap{position:relative;overflow:hidden}
+.filewrap input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:100px}
+textarea{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:10px;font:13px/1.4 ui-monospace,Menlo,monospace;background:var(--bg);resize:vertical}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.row .btn{flex:1;min-width:140px;padding:12px}
+.msg{margin-top:10px;font-size:14px;border-radius:10px;padding:10px 12px}
+.msg.ok{background:var(--ok2);color:var(--ok)}
+.msg.err{background:var(--acc2);color:var(--acc)}
+.pack{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.pack:first-child{border-top:0}
+.pack div{flex:1}
+.pack button{background:none;border:0;color:var(--acc);font:inherit;font-size:13px;cursor:pointer}
+.howto{padding-left:20px;margin:8px 0}
+.howto li{margin:6px 0}
+pre{background:var(--bg);border-radius:10px;padding:10px;font-size:12px;overflow-x:auto;white-space:pre}
+</style>
+</head>
+<body>
+<header>
+  <div class="top"><h1>Co z <span>lodówki?</span></h1></div>
+  <p class="sub" id="subtitle">Wybierz posiłek i zaznacz, co masz w domu.</p>
+  <div class="meals" id="meals">
+    <button class="meal on" data-m="all">Wszystko</button>
+    <button class="meal" data-m="s">🍳 Śniadanie</button>
+    <button class="meal" data-m="o">🍲 Obiad</button>
+    <button class="meal" data-m="k">🥗 Kolacja</button>
+    <button class="meal" data-m="d">🍰 Deser</button>
+  </div>
+</header>
+<main>
+  <section id="pick">
+    <div class="seg" id="mode"><button data-mode="today" class="on">🛒 Co mam dziś</button><button data-mode="staple">⭐ Zawsze mam w domu</button></div>
+    <p class="small" id="modeHint"></p>
+    <div id="staplesBox"></div>
+    <div class="search"><input id="q" type="search" placeholder="Szukaj produktu, np. ser, jabłko…" autocomplete="off"></div>
+    <div id="cats"></div>
+    <p class="note">Zakładam, że w domu zawsze są: sól, pieprz, olej/oliwa, cukier, woda i podstawowe przyprawy (papryka, oregano, majeranek) — nie musisz ich zaznaczać.</p>
+  </section>
+  <section id="res" class="hide">
+    <button class="back" id="back">← Zmień produkty</button>
+    <div class="seg" id="sort">
+      <button data-s="match" class="on">Dopasowanie</button>
+      <button data-s="protein">Najwięcej białka</button>
+      <button data-s="kcal">Najmniej kcal</button>
+    </div>
+    <label class="toggle"><input type="checkbox" id="onlyFull"> Tylko dania, na które mam wszystko</label>
+    <div id="list"></div>
+    <button class="btn sec hide" id="more" style="width:100%">Pokaż więcej</button>
+  </section>
+  <section id="favs" class="hide">
+    <h2 class="h2">Historia</h2>
+    <div class="card">
+      <h3>❤️ Ulubione</h3>
+      <p class="small" style="margin:0 0 4px">Na górze te, na które masz teraz wszystkie składniki.</p>
+      <div id="favList"></div>
+    </div>
+    <div class="card">
+      <h3>🕘 Ostatnio gotowane</h3>
+      <div id="recentList"></div>
+    </div>
+    <div class="card hide" id="oftenCard"><h3>Często robione</h3><p class="small" style="margin:0 0 6px">Robisz je regularnie — może dodać do ulubionych?</p><div id="oftenList"></div></div>
+    <div class="card">
+      <h3>🚫 Nie proponuj</h3>
+      <div id="hideList"></div>
+    </div>
+  </section>
+  <section id="manage" class="hide">
+    <h2 class="h2">Ustawienia</h2>
+    <p class="small" id="stats"></p>
+    <div class="card">
+      <h3>⭐ Zawsze mam w domu</h3>
+      <p class="small" style="margin:0 0 6px" id="stapleSum"></p>
+      <div class="row"><button class="btn sec" id="editStaples">Zmień stałe produkty</button></div>
+    </div>
+    <div class="card">
+      <h3>📚 Więcej przepisów</h3>
+      <p class="small" style="margin:0 0 6px">Gotowe pakiety — dodasz jednym stuknięciem:</p>
+      <div id="builtin"></div>
+      <div id="biMsg"></div>
+    </div>
+    <div class="card">
+      <h3>Dodane pakiety</h3>
+      <div id="packs"></div>
+      <div id="packMsg"></div>
+    </div>
+    <div class="card">
+      <h3>Kopia zapasowa</h3>
+      <p class="small" style="margin:0 0 6px">Zapisuje stałe produkty ⭐, ulubione ❤️, dania „nie proponuj”, historię gotowania i wgrane pakiety. Wyślij ją sobie np. mailem albo do notatek. Żeby ją przywrócić (np. na nowym telefonie), wklej jej tekst w „Dla zaawansowanych” → „Wklej przepisy”.</p>
+      <div class="row"><button class="btn sec" id="backupBtn">📤 Wyślij kopię zapasową</button></div>
+      <div id="backupMsg"></div>
+    </div>
+    <div class="card">
+      <h3>Historia gotowania</h3>
+      <div id="histList"></div>
+    </div>
+    <details class="card adv">
+      <summary>🛠 Dla zaawansowanych: własne przepisy</summary>
+      <p class="small" style="margin:10px 0 6px">Możesz dodać dowolne przepisy — najłatwiej poprosić o nie czat AI (np. Claude) i wkleić odpowiedź tutaj.</p>
+      <ol class="howto">
+        <li><b>Najprościej przez AI:</b> kliknij „Kopiuj polecenie dla AI”, wklej je do Claude albo innego czatu i dopisz na końcu, czego chcesz — np. <i>„15 wegańskich obiadów”</i> albo <i>„10 deserów bez pieczenia”</i>.</li>
+        <li>Skopiuj odpowiedź AI (cały tekst z nawiasami { }) i wklej ją w pole „Wklej przepisy” poniżej → <b>Dodaj wklejone przepisy</b>. Możesz też zapisać ją jako plik <b>.json</b> i wgrać przyciskiem.</li>
+        <li>Możesz pisać przepisy też ręcznie — według wzoru niżej.</li>
+      </ol>
+      <p class="small"><b>Zasady:</b> składniki nazywaj tak jak na liście produktów (np. „Jajka”, „Pierś z kurczaka”) — wtedy łączą się z tym, co zaznaczasz. Nowa nazwa tworzy nowy produkt w kategorii „Inne (dodane)” albo w kategorii podanej w sekcji „produkty”. Przepis o tej samej nazwie zastępuje poprzedni. Sól, pieprz, olej, cukier i wodę pomijaj. Pakiety zapisują się w tej przeglądarce na tym telefonie — zachowaj plik jako kopię zapasową.</p>
+      <div class="row"><button class="btn sec" id="copyPrompt">📋 Kopiuj polecenie dla AI</button><button class="btn sec" id="copyTpl">📋 Kopiuj wzór pliku</button></div>
+      <div id="copyMsg"></div>
+      <p class="small" style="margin-top:12px">Wzór pliku:</p>
+      <pre id="tpl"></pre>
+    
+      <h3 style="margin-top:18px">Wklej przepisy</h3>
+      <p class="small" style="margin:0 0 6px">Wklej tekst z przepisami, np. skopiowany z czatu AI albo z pliku .json:</p>
+      <textarea id="paste" rows="6" placeholder='{"przepisy": [ ... ]}'></textarea>
+      <div class="row"><button class="btn pri" id="addPaste">Dodaj wklejone przepisy</button></div>
+      <div id="msg"></div>
+      <p class="small" style="margin:14px 0 4px">Masz plik na telefonie lub komputerze?</p>
+      <div class="btn sec file filewrap">📂 Wgraj plik .json<input type="file" id="file" aria-label="Wybierz plik z przepisami"></div>
+      <p class="small" id="webHint">W aplikacji Claude na telefonie wybór plików bywa zablokowany. Wtedy otwórz tę stronę w Chrome albo skopiuj zawartość pliku i wklej ją wyżej.</p>
+    
+    </details>
+  </section>
+</main>
+<nav class="tabs" id="tabs">
+  <button data-tab="pick" class="on"><span class="ti">🛒</span>Produkty</button>
+  <button data-tab="favs"><span class="ti">❤️</span>Historia</button>
+  <button data-tab="manage"><span class="ti">⚙️</span>Ustawienia</button>
+</nav>
+<div class="bar"><div class="in">
+  <span class="count" id="cnt">0 wybranych</span>
+  <button class="btn sec" id="clear">Wyczyść</button>
+  <button class="btn pri" id="go" disabled>Pokaż propozycje</button>
+</div></div>
+
+<script>
+const CATS=[["nabial","Nabiał i jajka","🥚"],["mieso","Mięso i ryby","🍗"],["warzywa","Warzywa","🥕"],["ziola","Zioła i nowalijki","🌿"],["owoce","Owoce","🍎"],["zboza","Pieczywo, makaron, kasze","🍞"],["spiz","Puszki i spiżarnia","🥫"],["dodatki","Sosy i dodatki","🫙"],["slodkie","Do wypieków i słodkie","🍫"]];
+const ING={
+ jajka:["Jajka","nabial"],mleko:["Mleko","nabial"],maslo:["Masło","nabial"],ser_zolty:["Ser żółty","nabial"],twarog:["Twaróg","nabial"],smietana:["Śmietana 18%","nabial"],smietanka:["Śmietanka 30%","nabial"],jogurt:["Jogurt naturalny","nabial"],jogurt_grecki:["Jogurt grecki","nabial"],kefir:["Kefir / maślanka","nabial"],serek_wiejski:["Serek wiejski","nabial"],mozzarella:["Mozzarella","nabial"],feta:["Feta","nabial"],parmezan:["Parmezan","nabial"],
+ kurczak:["Pierś z kurczaka","mieso"],udka:["Udka / podudzia","mieso"],indyk:["Pierś z indyka","mieso"],mielone:["Mięso mielone","mieso"],schab:["Schab","mieso"],wolowina:["Wołowina","mieso"],boczek:["Boczek","mieso"],szynka:["Szynka","mieso"],kielbasa:["Kiełbasa","mieso"],parowki:["Parówki","mieso"],losos:["Łosoś","mieso"],dorsz:["Dorsz / biała ryba","mieso"],tunczyk:["Tuńczyk (puszka)","mieso"],krewetki:["Krewetki","mieso"],
+ ziemniaki:["Ziemniaki","warzywa"],bataty:["Bataty","warzywa"],cebula:["Cebula","warzywa"],czosnek:["Czosnek","warzywa"],por:["Por","warzywa"],pomidory:["Pomidory","warzywa"],ogorek:["Ogórek","warzywa"],ogorek_kiszony:["Ogórki kiszone","warzywa"],papryka:["Papryka","warzywa"],marchew:["Marchew","warzywa"],burak:["Buraki","warzywa"],cukinia:["Cukinia","warzywa"],dynia:["Dynia","warzywa"],brokul:["Brokuł","warzywa"],kalafior:["Kalafior","warzywa"],fasolka:["Fasolka szparagowa","warzywa"],groszek:["Groszek (mrożony)","warzywa"],szpinak:["Szpinak","warzywa"],pieczarki:["Pieczarki","warzywa"],kapusta:["Kapusta","warzywa"],salata:["Sałata","warzywa"],rukola:["Rukola","warzywa"],rzodkiewka:["Rzodkiewka","warzywa"],
+ szczypiorek:["Szczypiorek","ziola"],koperek:["Koperek","ziola"],natka:["Natka pietruszki","ziola"],imbir:["Imbir","ziola"],
+ banan:["Banan","owoce"],jablko:["Jabłko","owoce"],gruszka:["Gruszka","owoce"],cytryna:["Cytryna","owoce"],awokado:["Awokado","owoce"],truskawki:["Truskawki","owoce"],borowki:["Borówki","owoce"],maliny:["Maliny","owoce"],mango:["Mango","owoce"],ananas:["Ananas (puszka)","owoce"],
+ chleb:["Chleb","zboza"],bulka_tarta:["Bułka tarta","zboza"],tortilla:["Tortille","zboza"],makaron:["Makaron","zboza"],ryz:["Ryż","zboza"],kasza:["Kasza gryczana","zboza"],kasza_jaglana:["Kasza jaglana","zboza"],kasza_manna:["Kasza manna","zboza"],kuskus:["Kuskus","zboza"],platki:["Płatki owsiane","zboza"],maka:["Mąka","zboza"],
+ passata:["Passata / pomidory z puszki","spiz"],fasola:["Fasola (puszka)","spiz"],ciecierzyca:["Ciecierzyca (puszka)","spiz"],soczewica:["Soczewica","spiz"],kukurydza:["Kukurydza (puszka)","spiz"],kokos:["Mleczko kokosowe","spiz"],oliwki:["Oliwki","spiz"],bulion:["Bulion / kostka rosołowa","spiz"],
+ soja:["Sos sojowy","dodatki"],pesto:["Pesto","dodatki"],musztarda:["Musztarda","dodatki"],majonez:["Majonez","dodatki"],ketchup:["Ketchup","dodatki"],curry:["Curry (przyprawa)","dodatki"],maslo_orz:["Masło orzechowe","dodatki"],miod:["Miód","dodatki"],dzem:["Dżem","dodatki"],
+ kakao:["Kakao","slodkie"],czekolada:["Czekolada","slodkie"],proszek:["Proszek do pieczenia","slodkie"],cynamon:["Cynamon","slodkie"],orzechy:["Orzechy","slodkie"],rodzynki:["Rodzynki / bakalie","slodkie"]
+};
+// m: s=śniadanie, o=obiad, k=kolacja, d=deser. Makro na 1 porcję (orientacyjnie): k=kcal, p=białko, f=tłuszcz, c=węglowodany
+const R=[
+// ŚNIADANIA
+{n:"Jajecznica z cebulką",m:"sk",t:10,s:1,k:330,p:20,f:26,c:5,i:{jajka:"3 szt.",maslo:"10 g",cebula:"½ szt."},o:{chleb:"2 kromki",szczypiorek:"do posypania"},st:["Pokrój cebulę w kostkę i zeszklij na maśle.","Wbij jajka, dopraw solą i pieprzem.","Mieszaj na małym ogniu — zdejmij, póki są lekko wilgotne."]},
+{n:"Omlet z serem i pomidorem",m:"sk",t:10,s:1,k:420,p:28,f:32,c:5,i:{jajka:"3 szt.",ser_zolty:"30 g",pomidory:"1 szt.",maslo:"10 g"},o:{szynka:"2 plastry",szczypiorek:"garść"},st:["Roztrzep jajka z solą i pieprzem.","Wylej na rozgrzane masło, smaż pod przykryciem na małym ogniu.","Gdy wierzch się zetnie, połóż ser i pomidora, złóż na pół."]},
+{n:"Jajka sadzone z boczkiem",m:"s",t:10,s:1,k:450,p:22,f:38,c:2,i:{jajka:"2 szt.",boczek:"60 g"},o:{chleb:"2 kromki",pomidory:"1 szt."},st:["Wysmaż boczek w plastrach na chrupko.","Na tym samym tłuszczu usmaż jajka.","Dopraw i podawaj z pieczywem."]},
+{n:"Szakszuka",m:"sk",t:25,s:2,k:300,p:16,f:18,c:16,i:{jajka:"4 szt.",passata:"400 g",papryka:"1 szt.",cebula:"1 szt."},o:{czosnek:"2 ząbki",feta:"50 g",natka:"do posypania",chleb:"do podania"},st:["Podsmaż cebulę i paprykę, dodaj czosnek i paprykę słodką.","Wlej passatę i gotuj 8 minut.","Zrób wgłębienia, wbij jajka, przykryj i gotuj do ścięcia białek."]},
+{n:"Owsianka z bananem",m:"s",t:8,s:1,k:420,p:15,f:10,c:68,i:{platki:"60 g",mleko:"250 ml",banan:"1 szt."},o:{maslo_orz:"1 łyżka",miod:"1 łyżeczka",cynamon:"szczypta"},st:["Gotuj płatki w mleku 4–5 minut, mieszając.","Dodaj pokrojonego banana.","Na wierzch masło orzechowe, miód albo cynamon."]},
+{n:"Owsianka z jabłkiem i cynamonem",m:"s",t:10,s:1,k:390,p:13,f:9,c:66,i:{platki:"60 g",mleko:"250 ml",jablko:"1 szt.",cynamon:"½ łyżeczki"},o:{orzechy:"garść",rodzynki:"łyżka"},st:["Zetrzyj jabłko na grubych oczkach.","Gotuj płatki z mlekiem i jabłkiem 5 minut.","Dopraw cynamonem, posyp orzechami."]},
+{n:"Jaglanka z owocami",m:"sd",t:20,s:1,k:400,p:13,f:9,c:68,i:{kasza_jaglana:"60 g",mleko:"300 ml"},o:{gruszka:"1 szt.",jablko:"1 szt.",borowki:"garść",miod:"1 łyżeczka",cynamon:"szczypta"},st:["Przelej kaszę wrzątkiem, żeby nie była gorzka.","Gotuj w mleku ok. 15 minut na małym ogniu.","Podawaj z owocami i miodem."]},
+{n:"Jogurt z owocami i orzechami",m:"sd",t:5,s:1,k:360,p:20,f:20,c:24,i:{jogurt_grecki:"200 g",orzechy:"20 g"},o:{borowki:"100 g",maliny:"100 g",truskawki:"100 g",miod:"1 łyżeczka",platki:"2 łyżki"},st:["Przełóż jogurt do miseczki.","Dodaj umyte owoce i posiekane orzechy.","Polej miodem."]},
+{n:"Pancakes",m:"sd",t:25,s:2,k:420,p:13,f:10,c:68,i:{maka:"150 g",mleko:"200 ml",jajka:"1 szt.",proszek:"1 łyżeczka"},o:{borowki:"garść",miod:"do polania",maslo:"do smażenia"},st:["Wymieszaj mąkę, proszek, łyżkę cukru i szczyptę soli.","Dodaj mleko i jajko, wymieszaj na gęste ciasto.","Smaż małe placki na suchej lub lekko natłuszczonej patelni, aż pojawią się bąbelki — wtedy przewróć."]},
+{n:"Tosty francuskie",m:"sd",t:15,s:2,k:420,p:18,f:14,c:54,i:{chleb:"4 kromki",jajka:"2 szt.",mleko:"100 ml"},o:{cynamon:"szczypta",miod:"do polania",borowki:"garść",maslo:"do smażenia"},st:["Roztrzep jajka z mlekiem, odrobiną cukru i cynamonem.","Zamocz kromki z obu stron.","Smaż na maśle na złoto."]},
+{n:"Placuszki bananowe",m:"sd",t:15,s:2,k:270,p:10,f:7,c:42,i:{banan:"2 szt.",jajka:"2 szt.",platki:"60 g"},o:{miod:"do polania",jogurt:"do podania",cynamon:"szczypta"},st:["Rozgnieć banany widelcem.","Wymieszaj z jajkami i płatkami.","Smaż małe placuszki na lekko natłuszczonej patelni."]},
+{n:"Kasza manna na mleku",m:"sd",t:10,s:1,k:310,p:12,f:8,c:48,i:{kasza_manna:"40 g",mleko:"300 ml"},o:{dzem:"łyżka",kakao:"łyżeczka",maliny:"garść"},st:["Zagotuj mleko z łyżeczką cukru.","Wsypuj kaszę cienkim strumieniem, cały czas mieszając.","Gotuj 2–3 minuty, podawaj z dżemem lub owocami."]},
+{n:"Smoothie bananowo-truskawkowe",m:"sd",t:5,s:1,k:280,p:9,f:3,c:54,i:{banan:"1 szt.",truskawki:"150 g"},o:{jogurt:"150 g",kefir:"200 ml",mleko:"200 ml",mango:"½ szt.",miod:"łyżeczka"},st:["Wrzuć owoce do blendera.","Dodaj jogurt, kefir albo mleko.","Zmiksuj na gładko."]},
+{n:"Pasta jajeczna ze szczypiorkiem",m:"sk",t:15,s:2,k:330,p:18,f:27,c:2,i:{jajka:"4 szt.",majonez:"2 łyżki",szczypiorek:"pęczek"},o:{musztarda:"łyżeczka",chleb:"do podania",rzodkiewka:"kilka"},st:["Ugotuj jajka na twardo (9 min), wystudź i obierz.","Posiekaj drobno, wymieszaj z majonezem i szczypiorkiem.","Dopraw solą, pieprzem i musztardą."]},
+{n:"Twarożek z rzodkiewką",m:"sk",t:5,s:1,k:340,p:24,f:10,c:38,i:{twarog:"150 g",rzodkiewka:"5 szt."},o:{szczypiorek:"garść",jogurt:"2 łyżki",ogorek:"½ szt.",chleb:"2 kromki"},st:["Rozgnieć twaróg z jogurtem lub odrobiną mleka.","Dodaj pokrojoną rzodkiewkę i szczypiorek.","Dopraw i podawaj z chlebem."]},
+{n:"Serek wiejski z warzywami",m:"sk",t:5,s:1,k:220,p:24,f:9,c:8,i:{serek_wiejski:"200 g"},o:{rzodkiewka:"kilka",ogorek:"½ szt.",pomidory:"1 szt.",szczypiorek:"garść",chleb:"1 kromka"},st:["Pokrój warzywa w kostkę.","Wymieszaj z serkiem.","Dopraw pieprzem i szczypiorkiem."]},
+{n:"Kanapki z awokado i jajkiem",m:"sk",t:15,s:1,k:430,p:15,f:26,c:34,i:{chleb:"2 kromki",awokado:"½ szt.",jajka:"1 szt."},o:{cytryna:"kilka kropli",rzodkiewka:"kilka",pomidory:"plastry"},st:["Ugotuj jajko (7–9 min).","Rozgnieć awokado z cytryną, solą i pieprzem, posmaruj chleb.","Na wierzch połóż plastry jajka."]},
+{n:"Tosty z szynką i serem",m:"sk",t:10,s:2,k:420,p:24,f:20,c:36,i:{chleb:"4 kromki",szynka:"4 plastry",ser_zolty:"4 plastry"},o:{maslo:"10 g",pomidory:"1 szt.",ketchup:"do podania"},st:["Posmaruj chleb masłem.","Złóż kanapki z szynką i serem.","Opiecz na patelni lub w tosterze, aż ser się rozpuści."]},
+{n:"Parówki z musztardą",m:"sk",t:7,s:1,k:450,p:18,f:28,c:30,i:{parowki:"3 szt.",chleb:"2 kromki"},o:{musztarda:"do podania",ketchup:"do podania",ogorek_kiszony:"1 szt."},st:["Wrzuć parówki do gorącej, niewrzącej wody na 4–5 minut.","Podawaj z pieczywem, musztardą lub ketchupem."]},
+{n:"Sałatka z awokado i jajkiem",m:"sk",t:15,s:1,k:450,p:18,f:36,c:14,i:{awokado:"1 szt.",jajka:"2 szt.",pomidory:"1 szt.",salata:"garść"},o:{cytryna:"½ szt.",rukola:"garść"},st:["Ugotuj jajka na twardo (9 min).","Pokrój awokado, pomidora i jajka.","Ułóż na sałacie, skrop cytryną i oliwą, dopraw."]},
+// OBIADY
+{n:"Rosół z makaronem",m:"o",t:120,s:4,k:340,p:24,f:12,c:32,i:{udka:"600 g",marchew:"2 szt.",cebula:"1 szt.",makaron:"200 g"},o:{por:"kawałek",natka:"do posypania",bulion:"1 kostka"},st:["Zalej mięso 2,5 l zimnej wody, zagotuj i zbierz szumowiny.","Dodaj marchew, opaloną cebulę, por, sól, pieprz i ziele angielskie.","Gotuj na małym ogniu ok. 1,5 h. Podawaj z ugotowanym makaronem i natką."]},
+{n:"Zupa pomidorowa z makaronem",m:"o",t:30,s:2,k:330,p:10,f:9,c:52,i:{passata:"500 g",marchew:"1 szt.",makaron:"100 g",smietana:"100 ml"},o:{bulion:"1 kostka",cebula:"½ szt.",natka:"do posypania"},st:["Ugotuj marchew w 1 l wody z kostką rosołową.","Dodaj passatę, gotuj 10 minut, dopraw.","Zahartuj śmietanę i wlej do zupy. Podawaj z makaronem."]},
+{n:"Ogórkowa",m:"o",t:40,s:3,k:220,p:5,f:8,c:30,i:{ogorek_kiszony:"4 szt.",ziemniaki:"400 g",marchew:"1 szt.",smietana:"100 ml"},o:{koperek:"pęczek",bulion:"1 kostka"},st:["Ugotuj pokrojone ziemniaki i marchew w 1,2 l wody z bulionem.","Dodaj starte ogórki i trochę zalewy, gotuj 10 minut.","Zabiel śmietaną, posyp koperkiem."]},
+{n:"Krem z dyni",m:"ok",t:35,s:3,k:180,p:4,f:6,c:28,i:{dynia:"700 g",cebula:"1 szt.",czosnek:"2 ząbki"},o:{kokos:"200 ml",imbir:"kawałek",marchew:"1 szt.",bulion:"1 kostka"},st:["Podsmaż cebulę z czosnkiem i imbirem.","Dodaj dynię w kostce i 800 ml wody z bulionem, gotuj 20 minut.","Zmiksuj, dodaj mleczko kokosowe i dopraw."]},
+{n:"Krem z brokułów",m:"ok",t:30,s:2,k:240,p:9,f:10,c:28,i:{brokul:"500 g",ziemniaki:"200 g",cebula:"1 szt.",smietana:"100 ml"},o:{czosnek:"1 ząbek",bulion:"1 kostka"},st:["Podsmaż cebulę, dodaj ziemniaki, brokuł i 800 ml wody.","Gotuj 15–20 minut do miękkości, dopraw.","Zmiksuj na gładko i zabiel śmietaną."]},
+{n:"Gulasz z soczewicy",m:"ok",t:35,s:3,k:300,p:17,f:3,c:48,i:{soczewica:"200 g",marchew:"1 szt.",cebula:"1 szt.",passata:"400 g"},o:{kokos:"200 ml",curry:"1 łyżeczka",czosnek:"2 ząbki"},st:["Podsmaż cebulę i marchew w kostce.","Dodaj opłukaną soczewicę, passatę i 500 ml wody.","Gotuj 20–25 minut do miękkości, dopraw."]},
+{n:"Spaghetti bolognese",m:"o",t:35,s:2,k:780,p:42,f:28,c:88,i:{makaron:"200 g",mielone:"300 g",passata:"500 g",cebula:"1 szt.",czosnek:"2 ząbki"},o:{marchew:"1 szt.",parmezan:"do posypania"},st:["Podsmaż cebulę i czosnek, dodaj mięso i smaż, aż się zrumieni.","Wlej passatę, dopraw, duś 15–20 minut.","Ugotuj makaron al dente i połącz z sosem."]},
+{n:"Spaghetti carbonara",m:"o",t:20,s:2,k:780,p:34,f:34,c:84,i:{makaron:"200 g",boczek:"120 g",jajka:"2 szt.",parmezan:"40 g"},o:{czosnek:"1 ząbek"},st:["Ugotuj makaron, zachowaj szklankę wody z gotowania.","Wysmaż boczek w kostce. Wymieszaj jajka z tartym parmezanem i pieprzem.","Zdejmij patelnię z ognia, dodaj makaron, potem jajka i trochę wody — mieszaj, aż powstanie kremowy sos."]},
+{n:"Makaron z kurczakiem i szpinakiem",m:"o",t:25,s:2,k:820,p:52,f:30,c:82,i:{makaron:"200 g",kurczak:"300 g",szpinak:"150 g",smietana:"200 ml",czosnek:"2 ząbki"},o:{parmezan:"30 g"},st:["Pokrój kurczaka w kostkę, dopraw i usmaż.","Dodaj czosnek i szpinak, a gdy zwiędnie — śmietanę.","Wymieszaj z ugotowanym makaronem."]},
+{n:"Makaron pesto z kurczakiem",m:"ok",t:20,s:2,k:720,p:44,f:26,c:78,i:{makaron:"200 g",pesto:"4 łyżki",kurczak:"200 g"},o:{pomidory:"1 szt.",parmezan:"do posypania",rukola:"garść"},st:["Ugotuj makaron.","Usmaż kurczaka w paskach.","Wymieszaj makaron z pesto i kurczakiem, dodaj pomidory i parmezan."]},
+{n:"Makaron z tuńczykiem",m:"ok",t:20,s:2,k:560,p:32,f:8,c:86,i:{makaron:"200 g",tunczyk:"1 puszka",passata:"300 g",czosnek:"2 ząbki"},o:{cebula:"½ szt.",oliwki:"garść",parmezan:"do posypania"},st:["Ugotuj makaron.","Podsmaż czosnek, dodaj passatę i gotuj 5 minut.","Dodaj odsączonego tuńczyka, dopraw i połącz z makaronem."]},
+{n:"Makaron z krewetkami i czosnkiem",m:"ok",t:20,s:2,k:560,p:32,f:12,c:80,i:{makaron:"200 g",krewetki:"250 g",czosnek:"3 ząbki",maslo:"20 g"},o:{cytryna:"½ szt.",natka:"garść"},st:["Ugotuj makaron.","Na maśle z oliwą podsmaż czosnek, dodaj krewetki i smaż 2–3 minuty.","Wymieszaj z makaronem, skrop cytryną, posyp natką."]},
+{n:"Zapiekanka makaronowa z brokułem",m:"o",t:35,s:3,k:480,p:20,f:18,c:58,i:{makaron:"200 g",brokul:"300 g",ser_zolty:"100 g",smietana:"150 ml"},o:{czosnek:"1 ząbek",szynka:"100 g"},st:["Ugotuj makaron i brokuł (brokuł 3 min).","Wymieszaj ze śmietaną, czosnkiem i połową sera, przełóż do naczynia.","Posyp resztą sera i zapiekaj 15 minut w 200°C."]},
+{n:"Kurczak curry z ryżem",m:"o",t:30,s:2,k:880,p:46,f:40,c:82,i:{kurczak:"300 g",ryz:"150 g",kokos:"400 ml",curry:"1 łyżka",cebula:"1 szt."},o:{papryka:"1 szt.",czosnek:"2 ząbki",imbir:"kawałek"},st:["Ugotuj ryż.","Podsmaż cebulę z curry, dodaj kurczaka w kostce.","Wlej mleczko kokosowe i duś 10–15 minut. Podawaj z ryżem."]},
+{n:"Kurczak z ryżem i brokułem",m:"o",t:25,s:2,k:520,p:45,f:6,c:68,i:{kurczak:"300 g",ryz:"150 g",brokul:"300 g"},o:{soja:"2 łyżki",czosnek:"1 ząbek"},st:["Ugotuj ryż, a brokuł na parze lub w osolonej wodzie (4 min).","Usmaż przyprawionego kurczaka.","Podaj razem, skrop sosem sojowym."]},
+{n:"Kurczak miodowo-musztardowy z ryżem",m:"o",t:25,s:2,k:560,p:44,f:8,c:76,i:{kurczak:"300 g",musztarda:"2 łyżki",miod:"1 łyżka",ryz:"150 g"},o:{czosnek:"1 ząbek",groszek:"150 g"},st:["Ugotuj ryż.","Wymieszaj musztardę z miodem i odrobiną oliwy, obtocz kurczaka.","Smaż lub piecz kurczaka 15–20 minut, podawaj z ryżem."]},
+{n:"Kurczak słodko-kwaśny z ananasem",m:"o",t:30,s:2,k:640,p:42,f:8,c:96,i:{kurczak:"300 g",ananas:"1 puszka",papryka:"1 szt.",soja:"2 łyżki",ryz:"150 g"},o:{ketchup:"2 łyżki",cebula:"1 szt.",imbir:"kawałek"},st:["Ugotuj ryż.","Usmaż kurczaka w kostce, dodaj paprykę i cebulę.","Wlej sos sojowy, ketchup i trochę soku z ananasa, dodaj ananasa i duś 5 minut."]},
+{n:"Nuggetsy z kurczaka",m:"ok",t:30,s:2,k:520,p:50,f:20,c:30,i:{kurczak:"400 g",jajka:"1 szt.",bulka_tarta:"60 g"},o:{ketchup:"do podania",ziemniaki:"na frytki",maka:"2 łyżki"},st:["Pokrój kurczaka w kawałki, dopraw solą i papryką.","Obtocz w mące, jajku i bułce tartej.","Smaż na oleju lub piecz 20 minut w 200°C."]},
+{n:"Pieczone udka z ziemniakami",m:"o",t:60,s:2,k:820,p:52,f:44,c:52,i:{udka:"4 szt.",ziemniaki:"600 g",czosnek:"3 ząbki"},o:{papryka:"1 szt.",cebula:"1 szt.",marchew:"2 szt."},st:["Natrzyj udka solą, papryką, czosnkiem i olejem.","Pokrój ziemniaki i warzywa, ułóż w naczyniu razem z mięsem.","Piecz ok. 50 minut w 200°C."]},
+{n:"Wrap z kurczakiem",m:"ok",t:20,s:2,k:450,p:34,f:12,c:48,i:{tortilla:"2 szt.",kurczak:"200 g",salata:"kilka liści",pomidory:"1 szt."},o:{jogurt:"3 łyżki",ogorek:"½ szt.",kukurydza:"3 łyżki"},st:["Usmaż przyprawionego kurczaka w paskach.","Podgrzej tortille na suchej patelni.","Ułóż sałatę, pomidora i kurczaka, polej jogurtem z czosnkiem, zawiń."]},
+{n:"Indyk z warzywami i kuskusem",m:"ok",t:25,s:2,k:560,p:45,f:10,c:70,i:{indyk:"300 g",kuskus:"150 g",cukinia:"1 szt.",papryka:"1 szt."},o:{czosnek:"1 ząbek",natka:"garść",cytryna:"½ szt."},st:["Zalej kuskus wrzątkiem 1:1,5 z solą, przykryj na 5 minut.","Usmaż indyka w paskach, dodaj warzywa w kostce.","Smaż 5–7 minut, podawaj z kuskusem."]},
+{n:"Kotlet schabowy z ziemniakami",m:"o",t:40,s:2,k:780,p:50,f:36,c:62,i:{schab:"400 g",jajka:"1 szt.",bulka_tarta:"60 g",ziemniaki:"600 g"},o:{maka:"2 łyżki",koperek:"do ziemniaków",kapusta:"na surówkę",ogorek_kiszony:"do podania"},st:["Ugotuj ziemniaki.","Rozbij schab na cienkie kotlety, dopraw, obtocz w mące, jajku i bułce tartej.","Smaż na rozgrzanym tłuszczu po 3–4 minuty z każdej strony."]},
+{n:"Kotlety mielone z ziemniakami",m:"o",t:45,s:4,k:590,p:32,f:30,c:45,i:{mielone:"500 g",jajka:"1 szt.",cebula:"1 szt.",chleb:"1 kromka",ziemniaki:"800 g"},o:{bulka_tarta:"do obtoczenia",ogorek:"na mizerię",smietana:"na mizerię",koperek:"garść"},st:["Namocz chleb, odciśnij. Wymieszaj z mięsem, jajkiem, startą cebulą i przyprawami.","Uformuj kotlety, obtocz w bułce i smaż po 5–6 minut z każdej strony.","Podawaj z ugotowanymi ziemniakami."]},
+{n:"Pulpety w sosie pomidorowym",m:"o",t:45,s:4,k:420,p:30,f:24,c:18,i:{mielone:"500 g",jajka:"1 szt.",bulka_tarta:"40 g",passata:"500 g"},o:{cebula:"1 szt.",czosnek:"2 ząbki",ryz:"do podania",makaron:"do podania"},st:["Wymieszaj mięso z jajkiem, bułką tartą i przyprawami, uformuj kulki.","Obsmaż je krótko lub od razu włóż do zagotowanej passaty.","Duś pod przykryciem 20–25 minut."]},
+{n:"Gołąbki leniwe",m:"o",t:50,s:4,k:430,p:26,f:20,c:36,i:{kapusta:"½ główki",mielone:"500 g",ryz:"100 g",passata:"500 g"},o:{cebula:"1 szt.",jajka:"1 szt."},st:["Ugotuj ryż. Kapustę posiekaj i sparz wrzątkiem.","Wymieszaj mięso, ryż i kapustę, dopraw, uformuj kotlety.","Obsmaż i duś w passacie ok. 25 minut."]},
+{n:"Chili con carne",m:"o",t:40,s:3,k:520,p:36,f:22,c:40,i:{mielone:"300 g",fasola:"400 g",passata:"500 g",cebula:"1 szt.",czosnek:"2 ząbki"},o:{kukurydza:"1 puszka",papryka:"1 szt.",ryz:"do podania"},st:["Podsmaż cebulę i czosnek, dodaj mięso i zrumień.","Dopraw papryką, kuminem lub chili.","Dodaj passatę i odsączoną fasolę, duś 20 minut."]},
+{n:"Gulasz wołowy",m:"o",t:120,s:3,k:420,p:40,f:20,c:16,i:{wolowina:"500 g",cebula:"2 szt.",papryka:"1 szt.",passata:"300 g"},o:{pieczarki:"200 g",kasza:"do podania",czosnek:"2 ząbki"},st:["Pokrój wołowinę w kostkę, obsmaż partiami.","Dodaj cebulę i paprykę, podsmaż, wlej passatę i szklankę wody.","Duś pod przykryciem 1,5 h, aż mięso zmięknie."]},
+{n:"Wołowina stir-fry z ryżem",m:"o",t:25,s:2,k:600,p:38,f:16,c:72,i:{wolowina:"300 g",papryka:"1 szt.",soja:"3 łyżki",ryz:"150 g"},o:{imbir:"kawałek",czosnek:"2 ząbki",brokul:"200 g",marchew:"1 szt."},st:["Ugotuj ryż. Pokrój wołowinę w cienkie paski.","Smaż mięso krótko na bardzo gorącej patelni, odłóż.","Usmaż warzywa, dodaj mięso, sos sojowy, czosnek i imbir."]},
+{n:"Leczo z kiełbasą",m:"ok",t:35,s:2,k:480,p:18,f:34,c:22,i:{kielbasa:"250 g",papryka:"2 szt.",cukinia:"1 szt.",cebula:"1 szt.",passata:"300 g"},o:{pieczarki:"200 g"},st:["Podsmaż kiełbasę w plastrach z cebulą.","Dodaj paprykę i cukinię w kostce, smaż kilka minut.","Wlej passatę, dopraw papryką słodką i duś 15 minut."]},
+{n:"Kapusta z kiełbasą",m:"o",t:40,s:3,k:380,p:16,f:26,c:20,i:{kapusta:"½ główki",kielbasa:"250 g",cebula:"1 szt."},o:{passata:"200 g",boczek:"100 g"},st:["Podsmaż kiełbasę i cebulę.","Dodaj poszatkowaną kapustę i trochę wody.","Duś 25–30 minut, dopraw solą, pieprzem i majerankiem."]},
+{n:"Pieczony łosoś z ziemniakami",m:"o",t:40,s:2,k:590,p:36,f:26,c:50,i:{losos:"300 g",ziemniaki:"500 g",cytryna:"½ szt."},o:{brokul:"300 g",koperek:"garść",maslo:"10 g"},st:["Pokrój ziemniaki, wymieszaj z olejem i solą, piecz 20 min w 200°C.","Dołóż łososia skropionego cytryną i doprawionego.","Piecz razem jeszcze 12–15 minut."]},
+{n:"Ryba w panierce z ziemniakami",m:"o",t:35,s:2,k:620,p:42,f:18,c:70,i:{dorsz:"400 g",jajka:"1 szt.",bulka_tarta:"50 g",ziemniaki:"600 g"},o:{cytryna:"½ szt.",ogorek_kiszony:"do podania",koperek:"garść"},st:["Ugotuj ziemniaki lub upiecz je jako frytki.","Dopraw rybę, obtocz w jajku i bułce tartej.","Smaż po 3–4 minuty z każdej strony, skrop cytryną."]},
+{n:"Risotto z pieczarkami",m:"o",t:35,s:2,k:580,p:18,f:16,c:88,i:{ryz:"200 g",pieczarki:"300 g",cebula:"1 szt.",parmezan:"40 g",bulion:"1 kostka"},o:{maslo:"20 g",czosnek:"1 ząbek",natka:"garść"},st:["Podsmaż cebulę i pieczarki, dodaj ryż i smaż minutę.","Wlewaj stopniowo gorący bulion (ok. 800 ml), mieszając, przez 18–20 minut.","Na koniec wmieszaj masło i parmezan."]},
+{n:"Ryż smażony z jajkiem",m:"ok",t:20,s:2,k:430,p:14,f:12,c:66,i:{ryz:"150 g",jajka:"2 szt.",marchew:"1 szt.",soja:"2 łyżki"},o:{groszek:"100 g",kukurydza:"½ puszki",cebula:"½ szt."},st:["Ugotuj ryż (najlepiej dzień wcześniej i wystudź).","Usmaż marchew i groszek, dodaj ryż i smaż na dużym ogniu.","Zrób miejsce, wbij jajka, wymieszaj i dopraw sosem sojowym."]},
+{n:"Kasza z pieczarkami",m:"ok",t:25,s:2,k:410,p:13,f:12,c:62,i:{kasza:"150 g",pieczarki:"300 g",cebula:"1 szt."},o:{smietana:"100 ml",koperek:"garść"},st:["Ugotuj kaszę w osolonej wodzie.","Usmaż cebulę i pokrojone pieczarki, dopraw.","Wymieszaj z kaszą, opcjonalnie dodaj śmietanę."]},
+{n:"Ciecierzyca w sosie pomidorowym z ryżem",m:"o",t:30,s:2,k:560,p:20,f:9,c:96,i:{ciecierzyca:"400 g",passata:"400 g",cebula:"1 szt.",ryz:"150 g"},o:{szpinak:"100 g",curry:"1 łyżeczka",czosnek:"2 ząbki"},st:["Ugotuj ryż.","Podsmaż cebulę z przyprawami, dodaj passatę i odsączoną ciecierzycę.","Duś 10–15 minut, na koniec wmieszaj szpinak."]},
+{n:"Pieczone bataty z ciecierzycą",m:"ok",t:40,s:2,k:520,p:18,f:8,c:92,i:{bataty:"600 g",ciecierzyca:"400 g",jogurt:"150 g"},o:{czosnek:"1 ząbek",rukola:"garść",natka:"garść"},st:["Pokrój bataty, wymieszaj z ciecierzycą, olejem, solą i papryką.","Piecz 30 minut w 200°C.","Podawaj z sosem z jogurtu z czosnkiem."]},
+{n:"Placki ziemniaczane",m:"o",t:35,s:2,k:420,p:9,f:18,c:56,i:{ziemniaki:"600 g",jajka:"1 szt.",maka:"2 łyżki",cebula:"1 szt."},o:{smietana:"do podania"},st:["Zetrzyj ziemniaki i cebulę na drobnych oczkach, odciśnij wodę.","Dodaj jajko, mąkę, sól i pieprz, wymieszaj.","Smaż łyżką na rozgrzanym oleju z obu stron na złoto."]},
+{n:"Placki z cukinii",m:"ok",t:25,s:2,k:260,p:12,f:12,c:26,i:{cukinia:"2 szt.",jajka:"2 szt.",maka:"4 łyżki"},o:{czosnek:"1 ząbek",koperek:"garść",jogurt:"do podania",feta:"50 g"},st:["Zetrzyj cukinię, posól, odstaw na 10 minut i odciśnij.","Wymieszaj z jajkami, mąką i przyprawami.","Smaż małe placki na rozgrzanym oleju."]},
+{n:"Zapiekanka ziemniaczana",m:"o",t:60,s:3,k:470,p:16,f:22,c:52,i:{ziemniaki:"800 g",ser_zolty:"100 g",smietana:"200 ml",czosnek:"2 ząbki"},o:{boczek:"100 g",cebula:"1 szt."},st:["Pokrój ziemniaki w cienkie plasterki.","Układaj warstwami w naczyniu, polewając śmietaną z czosnkiem i przyprawami.","Posyp serem i piecz 45 minut w 190°C."]},
+{n:"Zapiekany kalafior z serem",m:"ok",t:30,s:2,k:330,p:18,f:22,c:18,i:{kalafior:"1 szt.",ser_zolty:"100 g",smietana:"100 ml"},o:{bulka_tarta:"2 łyżki",szynka:"100 g"},st:["Podgotuj różyczki kalafiora 5 minut.","Przełóż do naczynia, polej śmietaną, posyp serem.","Zapiekaj 15 minut w 200°C."]},
+{n:"Fasolka szparagowa z bułką tartą",m:"ok",t:15,s:2,k:200,p:6,f:11,c:20,i:{fasolka:"400 g",maslo:"20 g",bulka_tarta:"2 łyżki"},o:{jajka:"2 szt. na twardo"},st:["Ugotuj fasolkę w osolonej wodzie 6–8 minut.","Na maśle zrumień bułkę tartą.","Polej fasolkę, opcjonalnie podaj z jajkiem."]},
+{n:"Pierogi leniwe",m:"od",t:30,s:3,k:400,p:26,f:10,c:48,i:{twarog:"500 g",maka:"150 g",jajka:"1 szt."},o:{maslo:"do polania",bulka_tarta:"do posypania"},st:["Rozgnieć twaróg z jajkiem, dodaj mąkę i szczyptę soli, zagnieć.","Uformuj wałki, spłaszcz i pokrój ukośnie.","Gotuj w osolonej wodzie 2 minuty od wypłynięcia."]},
+{n:"Naleśniki z twarogiem",m:"sod",t:30,s:2,k:620,p:33,f:18,c:80,i:{maka:"150 g",mleko:"300 ml",jajka:"2 szt.",twarog:"250 g"},o:{miod:"do smaku",dzem:"do podania",rodzynki:"garść"},st:["Zmiksuj mąkę, mleko, 1 jajko i szczyptę soli na gładkie ciasto.","Smaż cienkie naleśniki na lekko natłuszczonej patelni.","Twaróg rozgnieć z drugim jajkiem i cukrem, nałóż, zwiń i podgrzej."]},
+// KOLACJE
+{n:"Sałatka grecka",m:"k",t:10,s:2,k:280,p:10,f:22,c:10,i:{pomidory:"2 szt.",ogorek:"1 szt.",feta:"100 g",cebula:"½ szt."},o:{papryka:"1 szt.",oliwki:"garść",cytryna:"½ szt."},st:["Pokrój warzywa w dużą kostkę, cebulę w piórka.","Dodaj pokruszoną fetę i oliwki.","Polej oliwą, dopraw solą, pieprzem i oregano."]},
+{n:"Sałatka caprese",m:"k",t:10,s:2,k:220,p:12,f:16,c:8,i:{pomidory:"3 szt.",mozzarella:"125 g"},o:{pesto:"2 łyżki",rukola:"garść"},st:["Pokrój pomidory i mozzarellę w plastry.","Układaj na przemian na talerzu.","Polej oliwą lub pesto, dopraw solą i pieprzem."]},
+{n:"Sałatka z tuńczykiem i kukurydzą",m:"k",t:15,s:2,k:320,p:26,f:16,c:18,i:{tunczyk:"1 puszka",kukurydza:"½ puszki",jajka:"2 szt."},o:{majonez:"1 łyżka",salata:"garść",ogorek:"½ szt.",cebula:"odrobina"},st:["Ugotuj jajka na twardo i pokrój.","Wymieszaj z odsączonym tuńczykiem i kukurydzą.","Dodaj warzywa i majonez lub jogurt, dopraw."]},
+{n:"Sałatka z buraków z fetą",m:"k",t:15,s:2,k:280,p:11,f:18,c:20,i:{burak:"3 szt. (gotowane)",feta:"100 g"},o:{rukola:"garść",orzechy:"garść",miod:"łyżeczka"},st:["Pokrój ugotowane buraki w kostkę.","Ułóż na rukoli, posyp fetą i orzechami.","Polej oliwą wymieszaną z miodem i octem."]},
+{n:"Sałatka z kuskusem",m:"ok",t:15,s:2,k:360,p:11,f:6,c:64,i:{kuskus:"150 g",ogorek:"1 szt.",pomidory:"2 szt."},o:{papryka:"1 szt.",feta:"80 g",natka:"pęczek",cytryna:"½ szt."},st:["Zalej kuskus wrzątkiem, przykryj na 5 minut i rozdrobnij widelcem.","Dodaj pokrojone warzywa i natkę.","Dopraw cytryną, oliwą, solą i pieprzem."]},
+{n:"Quesadilla z fasolą",m:"k",t:15,s:2,k:470,p:22,f:16,c:58,i:{tortilla:"2 szt.",fasola:"200 g",ser_zolty:"80 g"},o:{kukurydza:"½ puszki",papryka:"½ szt."},st:["Rozgnieć fasolę z przyprawami.","Rozsmaruj na połowie tortilli, posyp serem i złóż.","Opiecz na suchej patelni z obu stron."]},
+{n:"Pizza na tortilli",m:"k",t:15,s:2,k:380,p:20,f:16,c:38,i:{tortilla:"2 szt.",passata:"4 łyżki",mozzarella:"125 g"},o:{szynka:"4 plastry",pieczarki:"100 g",oliwki:"garść",kukurydza:"2 łyżki"},st:["Rozsmaruj passatę na tortillach, dopraw oregano.","Ułóż dodatki i mozzarellę.","Piecz 8–10 minut w 220°C."]},
+{n:"Zapiekanki z mozzarellą i pomidorem",m:"k",t:15,s:2,k:390,p:18,f:16,c:42,i:{chleb:"4 kromki",mozzarella:"125 g",pomidory:"2 szt."},o:{czosnek:"1 ząbek",pesto:"łyżka"},st:["Ułóż na chlebie plastry pomidora i mozzarelli.","Dopraw solą, pieprzem i oregano, skrop oliwą.","Zapiekaj 8–10 minut w 200°C."]},
+{n:"Zapiekanki z pieczarkami i serem",m:"k",t:20,s:2,k:420,p:18,f:18,c:44,i:{chleb:"4 kromki",pieczarki:"200 g",ser_zolty:"80 g"},o:{cebula:"½ szt.",ketchup:"do podania",szczypiorek:"garść"},st:["Usmaż pieczarki z cebulą, dopraw.","Nałóż na chleb i posyp serem.","Zapiekaj 8–10 minut w 200°C, podawaj z ketchupem."]},
+// DESERY
+{n:"Racuchy z jabłkami",m:"ds",t:30,s:3,k:380,p:10,f:12,c:58,i:{maka:"200 g",mleko:"250 ml",jajka:"1 szt.",jablko:"2 szt."},o:{cynamon:"szczypta",proszek:"1 łyżeczka"},st:["Wymieszaj mąkę, mleko, jajko, łyżkę cukru i szczyptę soli.","Dodaj jabłka pokrojone w plasterki lub starte.","Smaż łyżką na rozgrzanym oleju, posyp cukrem pudrem."]},
+{n:"Gofry",m:"ds",t:30,s:4,k:380,p:10,f:16,c:48,i:{maka:"250 g",mleko:"300 ml",jajka:"2 szt.",maslo:"50 g",proszek:"1 łyżeczka"},o:{truskawki:"do podania",smietanka:"bita",dzem:"do podania"},st:["Wymieszaj mąkę z proszkiem i łyżką cukru.","Dodaj mleko, jajka i roztopione masło, wymieszaj na gładko.","Piecz w rozgrzanej gofrownicy 3–4 minuty. (Bez gofrownicy usmaż jak placuszki.)"]},
+{n:"Szarlotka",m:"d",t:75,s:8,k:330,p:4,f:14,c:48,i:{maka:"250 g",maslo:"125 g",jajka:"1 szt.",jablko:"1 kg"},o:{cynamon:"1 łyżeczka",proszek:"1 łyżeczka"},st:["Zagnieć mąkę z masłem, jajkiem, 80 g cukru i proszkiem. Schłodź 30 minut.","Zetrzyj jabłka, odciśnij i podsmaż krótko z cynamonem.","Wyłóż 2/3 ciasta do formy, nałóż jabłka, resztę ciasta zetrzyj na wierzch. Piecz 45 minut w 180°C."]},
+{n:"Kruszonka jabłkowa (crumble)",m:"d",t:40,s:3,k:360,p:4,f:16,c:52,i:{jablko:"3 szt.",maka:"80 g",maslo:"60 g",platki:"40 g"},o:{cynamon:"1 łyżeczka",borowki:"garść",orzechy:"garść"},st:["Pokrój jabłka, wymieszaj z cynamonem i łyżką cukru, przełóż do naczynia.","Rozetrzyj palcami mąkę, płatki, masło i 2 łyżki cukru na kruszonkę.","Posyp owoce i piecz 30 minut w 190°C."]},
+{n:"Ciasto bananowe",m:"ds",t:70,s:10,k:230,p:4,f:9,c:34,i:{banan:"3 szt.",maka:"200 g",jajka:"2 szt.",maslo:"80 g",proszek:"1 łyżeczka"},o:{orzechy:"50 g",czekolada:"50 g",cynamon:"szczypta"},st:["Rozgnieć bardzo dojrzałe banany, dodaj roztopione masło, jajka i 80 g cukru.","Wmieszaj mąkę z proszkiem i dodatki.","Piecz w keksówce ok. 55 minut w 175°C."]},
+{n:"Muffinki czekoladowe",m:"d",t:35,s:12,k:190,p:4,f:8,c:26,i:{maka:"200 g",kakao:"2 łyżki",jajka:"2 szt.",mleko:"150 ml",proszek:"2 łyżeczki"},o:{czekolada:"50 g",borowki:"garść"},st:["W jednej misce wymieszaj suche składniki z 100 g cukru.","W drugiej jajka, mleko i 80 ml oleju; połącz krótko obie masy.","Nałóż do foremek i piecz 20 minut w 180°C."]},
+{n:"Mus czekoladowy",m:"d",t:15,s:3,k:360,p:4,f:30,c:20,i:{czekolada:"100 g",smietanka:"200 ml"},o:{maliny:"do podania",kakao:"do posypania"},st:["Roztop czekoladę z 50 ml śmietanki i lekko przestudź.","Ubij resztę śmietanki na sztywno.","Delikatnie połącz, przełóż do pucharków i schłódź 1 h."]},
+{n:"Pieczone jabłka z cynamonem",m:"d",t:30,s:2,k:150,p:1,f:3,c:32,i:{jablko:"2 szt.",cynamon:"½ łyżeczki"},o:{orzechy:"garść",rodzynki:"łyżka",miod:"łyżeczka"},st:["Wydrąż gniazda nasienne jabłek.","Napełnij orzechami, rodzynkami, miodem i cynamonem.","Piecz 20–25 minut w 190°C."]},
+{n:"Ryż na mleku z jabłkami",m:"ds",t:30,s:2,k:380,p:12,f:9,c:62,i:{ryz:"100 g",mleko:"500 ml",jablko:"1 szt."},o:{cynamon:"szczypta",rodzynki:"łyżka",maslo:"łyżeczka"},st:["Gotuj ryż w mleku z łyżką cukru na małym ogniu ok. 25 minut, mieszając.","Podsmaż starte jabłko z cynamonem.","Podawaj ryż z jabłkami."]},
+{n:"Lody bananowe",m:"d",t:5,s:2,k:180,p:2,f:1,c:42,i:{banan:"3 szt. (zamrożone)"},o:{kakao:"łyżka",maslo_orz:"łyżka",truskawki:"garść"},st:["Pokrój dojrzałe banany w plasterki i zamroź (min. 3 h).","Zmiksuj w blenderze na gładką masę, dodając kakao lub masło orzechowe.","Jedz od razu albo zamroź jeszcze na 30 minut."]},
+{n:"Kruche ciasteczka maślane",m:"d",t:40,s:20,k:110,p:1,f:6,c:12,i:{maka:"250 g",maslo:"150 g",jajka:"1 szt."},o:{czekolada:"do dekoracji",dzem:"do przełożenia",cynamon:"szczypta"},st:["Zagnieć mąkę, masło, jajko i 80 g cukru, schłodź 30 minut.","Rozwałkuj i wykrawaj ciasteczka.","Piecz 10–12 minut w 180°C, aż brzegi się zarumienią."]},
+{n:"Truskawki z bitą śmietaną",m:"d",t:10,s:2,k:250,p:2,f:20,c:14,i:{truskawki:"300 g",smietanka:"150 ml"},o:{czekolada:"do posypania"},st:["Umyj i przekrój truskawki.","Ubij śmietankę z łyżką cukru.","Podawaj razem, posyp startą czekoladą."]}
+];
+
+const MEALNAME={s:"Śniadanie",o:"Obiad",k:"Kolacja",d:"Deser"};
+let sel=new Set(), out=new Set(), staples=new Set(), sortBy="match", shown=3, meal="all", open=new Set(), mode="today", HIST={};
+const $=id=>document.getElementById(id);
+try{const mm=localStorage.getItem("lodowka_meal");if(mm)meal=mm;JSON.parse(localStorage.getItem("lodowka_staples")||"[]").forEach(x=>staples.add(x));HIST=JSON.parse(localStorage.getItem("lodowka_hist")||"{}")}catch(e){}
+try{const t=JSON.parse(sessionStorage.getItem("lodowka_today")||"{}");(t.sel||[]).forEach(x=>sel.add(x));(t.out||[]).forEach(x=>out.add(x))}catch(e){}
+const save=()=>{try{localStorage.setItem("lodowka_meal",meal);localStorage.setItem("lodowka_staples",JSON.stringify([...staples]))}catch(e){}try{sessionStorage.setItem("lodowka_today",JSON.stringify({sel:[...sel],out:[...out]}))}catch(e){}};
+const saveHist=()=>{try{localStorage.setItem("lodowka_hist",JSON.stringify(HIST))}catch(e){}};
+const has=id=>sel.has(id)||(staples.has(id)&&!out.has(id));
+const marked=id=>mode==="staple"?staples.has(id):has(id);
+
+function chipHTML(id){
+  const st=staples.has(id);
+  const cls="chip"+(st?" staple"+(out.has(id)&&mode==="today"?" out":""):"")+(sel.has(id)?" on":"");
+  return `<button class="${cls}" data-id="${id}">${st?"⭐ ":""}${esc(ING[id][0])}</button>`;
+}
+function renderPick(){
+  document.body.classList.toggle("smode",mode==="staple");
+  document.querySelectorAll("#mode button").forEach(x=>x.classList.toggle("on",x.dataset.mode===mode));
+  $("modeHint").textContent=mode==="staple"
+    ?"Stuknij produkty, które ZAWSZE masz w domu (np. jajka, mleko, mąka). Zapamiętam je na stałe. Gdy skończysz, wróć do „Co mam dziś”."
+    :(staples.size?"Zaznacz, co masz dziś poza stałymi produktami. Lista dzisiejszych produktów zaczyna się od zera przy każdym otwarciu.":"Zaznacz, co masz dziś. Rzeczy, które masz zawsze (jajka, mleko…), ustaw raz w zakładce ⭐ — nie trzeba będzie ich zaznaczać.");
+  const st=[...staples].filter(x=>ING[x]);
+  $("staplesBox").innerHTML=(mode==="today"&&st.length)?`<div class="staplebox"><h4>⭐ Zawsze w domu (${st.length})</h4><p class="small" style="margin:-4px 0 8px">Stuknij, jeśli coś się akurat skończyło.</p><div class="chips">${st.map(chipHTML).join("")}</div></div>`:"";
+  $("cats").innerHTML=CATS.map(([c,name,ico])=>{
+    const ids=Object.keys(ING).filter(k=>ING[k][1]===c),n=ids.filter(marked).length;
+    if(!ids.length)return "";
+    return `<div class="cat${open.has(c)?" open":""}" data-cat="${c}">
+    <button class="cat-h" data-toggle="${c}"><span class="ico">${ico}</span><span class="nm">${name}</span><span class="ct${n?" has":""}">${n}/${ids.length}</span><span class="chev">›</span></button>
+    <div class="cat-b"><div class="cat-tools"><button data-all="${c}">${n===ids.length?"Odznacz wszystkie":"Zaznacz wszystkie"}</button></div><div class="chips">`+
+    ids.map(chipHTML).join("")+`</div></div></div>`}).join("");
+  filter();updBar();
+}
+function updBar(){
+  const n=Object.keys(ING).filter(has).length,num=results().length,sn=[...staples].filter(x=>ING[x]&&!out.has(x)).length;
+  $("cnt").innerHTML=`<b>${n}</b> ${pl(n,"produkt","produkty","produktów")}`+(sn?`<br>w tym ⭐ ${sn}`:"");
+  $("go").disabled=n===0;
+  $("go").textContent=n?`Pokaż propozycje (${num})`:"Pokaż propozycje";
+}
+function tapChip(id){
+  if(mode==="staple"){staples.has(id)?(staples.delete(id),out.delete(id)):(staples.add(id),sel.delete(id))}
+  else if(staples.has(id)){out.has(id)?out.delete(id):out.add(id)}
+  else{sel.has(id)?sel.delete(id):sel.add(id)}
+  save();
+}
+function onChipArea(e){
+  const b=e.target.closest(".chip");
+  if(b){tapChip(b.dataset.id);renderPick();return}
+  const t=e.target.closest("[data-toggle]");
+  if(t){const c=t.dataset.toggle;open.has(c)?open.delete(c):open.add(c);t.parentElement.classList.toggle("open");return}
+  const a=e.target.closest("[data-all]");
+  if(a){const c=a.dataset.all,ids=Object.keys(ING).filter(k=>ING[k][1]===c),all=ids.every(marked);
+    ids.forEach(k=>{if(mode==="staple"){all?staples.delete(k):(staples.add(k),sel.delete(k))}else if(staples.has(k)){all?out.add(k):out.delete(k)}else{all?sel.delete(k):sel.add(k)}});save();renderPick()}
+}
+$("cats").addEventListener("click",onChipArea);
+$("staplesBox").addEventListener("click",onChipArea);
+$("mode").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;mode=b.dataset.mode;renderPick()});
+function filter(){
+  const q=$("q").value.trim().toLowerCase();
+  document.querySelectorAll(".cat").forEach(cat=>{
+    let vis=0;cat.querySelectorAll(".chip").forEach(ch=>{const m=!q||ch.textContent.toLowerCase().includes(q);ch.classList.toggle("hidden",!m);if(m)vis++});
+    cat.classList.toggle("hide",vis===0);
+    if(q)cat.classList.toggle("open",vis>0);else cat.classList.toggle("open",open.has(cat.dataset.cat));
+  });
+}
+$("q").addEventListener("input",filter);
+$("clear").onclick=()=>{sel.clear();out.clear();save();renderPick();if(!$("res").classList.contains("hide"))showPick()};
+$("meals").addEventListener("click",e=>{const b=e.target.closest(".meal");if(!b)return;meal=b.dataset.m;save();setMeal();shown=3;updBar();if(!$("res").classList.contains("hide"))renderRes();if(!$("favs").classList.contains("hide"))renderFavs()});
+function setMeal(){document.querySelectorAll(".meal").forEach(x=>x.classList.toggle("on",x.dataset.m===meal))}
+
+// ---- historia gotowania ----
+const hkey=r=>norm(r.n);
+const days=t=>Math.floor((Date.now()-t)/864e5);
+const ago=t=>{const d=days(t);return d<=0?"dziś":d===1?"wczoraj":`${d} dni temu`};
+let FAV=new Set();try{JSON.parse(localStorage.getItem("lodowka_fav")||"[]").forEach(x=>FAV.add(x))}catch(e){}
+const saveFav=()=>{try{localStorage.setItem("lodowka_fav",JSON.stringify([...FAV]))}catch(e){}};
+const isFav=r=>FAV.has(hkey(r));
+let HIDE=new Set();try{JSON.parse(localStorage.getItem("lodowka_hide")||"[]").forEach(x=>HIDE.add(x))}catch(e){}
+const saveHide=()=>{try{localStorage.setItem("lodowka_hide",JSON.stringify([...HIDE]))}catch(e){}};
+const isHid=r=>HIDE.has(hkey(r));
+function pen(r){if(isFav(r))return -0.1;const h=HIST[hkey(r)];if(!h)return 0;const d=(Date.now()-h.last)/864e5;return (d<2?0.9:d<7?0.6:d<14?0.3:0)+Math.min(h.n,10)*0.03}
+const today=new Date().toDateString();
+function jit(str){let h=0;for(const ch of str+today)h=(h*31+ch.charCodeAt(0))|0;return (h>>>0)/4294967296}
+
+function score(r){
+  const req=Object.keys(r.i),opt=Object.keys(r.o||{});
+  const hv=req.filter(has).length;
+  return {r,have:hv,miss:req.length-hv,ratio:hv/req.length,optHave:opt.filter(has).length,pen:pen(r),hid:isHid(r)?1:0};
+}
+function results(){
+  let list=R.filter(r=>meal==="all"||r.m.includes(meal)).map(score).filter(x=>x.have>0&&x.ratio>=0.5&&x.miss<=2);
+  if($("onlyFull").checked)list=list.filter(x=>x.miss===0);
+  const recent=x=>x.pen>=0.6?1:0;
+  if(sortBy==="match")list.sort((a,b)=>a.hid-b.hid||(a.miss+a.pen)-(b.miss+b.pen)||b.ratio-a.ratio||b.optHave-a.optHave||jit(a.r.n)-jit(b.r.n));
+  else if(sortBy==="protein")list.sort((a,b)=>a.hid-b.hid||Math.min(a.miss,1)-Math.min(b.miss,1)||recent(a)-recent(b)||b.r.p-a.r.p);
+  else list.sort((a,b)=>a.hid-b.hid||Math.min(a.miss,1)-Math.min(b.miss,1)||recent(a)-recent(b)||a.r.k-b.r.k);
+  return list;
+}
+function histText(r){const h=HIST[hkey(r)];return h?`Robione ${h.n}× · ostatnio ${ago(h.last)}`:"Jeszcze nie robione"}
+function card(x){
+  const r=x.r;
+  const badge=x.miss===0?`<span class="badge ok">Masz wszystko</span>`:`<span class="badge warn">Brakuje: ${x.miss}</span>`;
+  const tags=[...r.m].map(c=>`<span class="tag">${MEALNAME[c]}</span>`).join("")+(r.src?`<span class="tag">📥 ${esc(r.src)}</span>`:"");
+  const li=(id,amt,kind)=>{const h=has(id);const cls=kind==="opt"?(h?"have":"opt"):(h?"have":"miss");const ic=h?"✓":(kind==="opt"?"+":"✗");return `<li class="${cls}"><i>${ic}</i><span>${staples.has(id)&&h?"⭐ ":""}${esc(ING[id][0])}${kind==="opt"?" <span class='small'>(opcjonalnie)</span>":""}</span><span class="amt">${esc(amt)}</span></li>`};
+  const fv=isFav(r),hd=isHid(r);
+  return `<article class="card${hd?" dim":""}"><div class="card-h"><h3>${esc(r.n)}</h3><button class="fav" data-fav="${esc(r.n)}" aria-label="${fv?"Usuń z ulubionych":"Dodaj do ulubionych"}">${fv?"❤️":"♡"}</button></div>
+  <div class="meta">${hd?'<span class="badge no">🚫 Nie proponuj</span>':""}${badge}${r.t?`<span>⏱ ${r.t} min</span>`:""}<span>· ${r.s} ${r.s===1?"porcja":(r.s<5?"porcje":"porcji")}</span></div>
+  <div class="meta" style="margin-top:6px">${tags}</div>
+  <div class="macros"><div class="m"><b>${r.k||"?"}</b><small>kcal</small></div><div class="m"><b>${r.p} g</b><small>białko</small></div><div class="m"><b>${r.f} g</b><small>tłuszcz</small></div><div class="m"><b>${r.c} g</b><small>węgle</small></div></div>
+  <div class="small">Na 1 porcję, wartości orientacyjne.</div>
+  <ul class="ing">${Object.entries(r.i).map(([id,a])=>li(id,a,"req")).join("")}${Object.entries(r.o||{}).map(([id,a])=>li(id,a,"opt")).join("")}</ul>
+  <details><summary>Przepis</summary><ol class="steps">${r.st.map(s=>`<li>${esc(s)}</li>`).join("")}</ol></details>
+  <div class="cookrow"><button class="cook" data-cook="${esc(r.n)}">✓ Zrobiłem to</button><span class="small hist">${histText(r)}</span><button class="nope" data-nope="${esc(r.n)}">${hd?"↩︎ Przywróć":"🚫 Nie proponuj"}</button></div></article>`;
+}
+let UNDO={};
+function onNope(e){
+  const b=e.target.closest(".nope");if(!b)return false;
+  const k=norm(b.dataset.nope),card=b.closest(".card");
+  if(HIDE.has(k)){HIDE.delete(k);saveHide();card.classList.remove("dim");b.textContent="🚫 Nie proponuj";const nb=card.querySelector(".badge.no");if(nb)nb.remove();card.querySelector(".hist").textContent="Przywrócone — znów będzie normalnie proponowane."}
+  else{HIDE.add(k);saveHide();if(FAV.delete(k))saveFav();card.classList.add("dim");b.textContent="↩︎ Przywróć";card.querySelector(".hist").textContent="Przeniesione na sam koniec propozycji.";const f=card.querySelector(".fav");if(f)f.textContent="♡";
+    if(!$("favs").classList.contains("hide"))renderFavs();}
+  return true;
+}
+function onFavClick(e){
+  if(onNope(e))return true;
+  const f=e.target.closest(".fav");if(!f)return false;
+  const k=norm(f.dataset.fav);FAV.has(k)?FAV.delete(k):(FAV.add(k),HIDE.delete(k),saveHide());saveFav();
+  if(!$("favs").classList.contains("hide"))renderFavs();
+  else{f.textContent=FAV.has(k)?"❤️":"♡";}
+  return true;
+}
+$("favs").addEventListener("click",e=>{if(onFavClick(e))return;onCook(e);const o=e.target.closest("[data-addfav]");if(o){FAV.add(norm(o.dataset.addfav));saveFav();renderFavs()}});
+$("list").addEventListener("click",e=>{if(!onFavClick(e))onCook(e)});
+function onCook(e){
+  const b=e.target.closest(".cook");if(!b)return;
+  const name=b.dataset.cook,k=norm(name),span=b.parentElement.querySelector(".hist");
+  if(b.classList.contains("undo")){
+    if(UNDO[k])HIST[k]=UNDO[k];else delete HIST[k];delete UNDO[k];saveHist();
+    b.classList.remove("undo");b.textContent="✓ Zrobiłem to";span.textContent=histText({n:name});return}
+  UNDO[k]=HIST[k]?{...HIST[k]}:null;
+  HIST[k]={n:(HIST[k]?.n||0)+1,last:Date.now(),name};saveHist();
+  b.classList.add("undo");b.textContent="Cofnij";
+  span.textContent=FAV.has(k)?`Zapisane (${HIST[k].n}×). To ulubione — zostaje wysoko w propozycjach.`:`Zapisane (${HIST[k].n}×). Następnym razem podsunę na początku coś innego.`;
+}
+function renderRes(){
+  const list=results();
+  if(!list.length){$("list").innerHTML=`<div class="empty">Brak pasujących dań${meal!=="all"?" w kategorii „"+MEALNAME[meal]+"”":""}.<br>Zaznacz więcej produktów, zmień posiłek albo wyłącz filtr „mam wszystko”.</div>`;$("more").classList.add("hide");return}
+  $("list").innerHTML=list.slice(0,shown).map(card).join("");
+  $("more").classList.toggle("hide",list.length<=shown);
+  $("more").textContent=`Pokaż więcej (${list.length-shown})`;
+}
+const SUB={pick:"Wybierz posiłek i zaznacz, co masz w domu.",res:"Najlepiej pasujące dania do tego, co masz.",favs:"Twoje ulubione i ostatnio gotowane dania.",manage:"Stałe produkty, więcej przepisów i kopia zapasowa."};
+function setView(v){
+  ["pick","res","favs","manage"].forEach(id=>$(id).classList.toggle("hide",id!==v));
+  const tab=v==="res"?"pick":v;
+  document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.tab===tab));
+  document.querySelector(".bar").classList.toggle("hide",!(v==="pick"||v==="res"));
+  $("go").classList.toggle("hide",v!=="pick");
+  $("meals").classList.toggle("hide",v==="manage");
+  $("subtitle").textContent=SUB[v];
+  scrollTo(0,0);
+}
+function showRes(){shown=3;setView("res");renderRes()}
+function showPick(){setView("pick");updBar()}
+function showFavs(){setView("favs");renderFavs()}
+function showManage(){setView("manage");renderManage()}
+$("go").onclick=showRes;$("back").onclick=showPick;
+$("more").onclick=()=>{shown+=3;renderRes()};
+$("onlyFull").onchange=()=>{shown=3;renderRes();updBar()};
+$("sort").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;sortBy=b.dataset.s;document.querySelectorAll("#sort button").forEach(x=>x.classList.toggle("on",x===b));shown=3;renderRes()});
+
+// ===== WŁASNE PRZEPISY (pakiety) =====
+CATS.push(["inne","Inne (dodane)","📦"]);
+const BASE_ING=JSON.parse(JSON.stringify(ING)), BASE_R=R.slice();
+const MEALMAP={sniadanie:"s",obiad:"o",kolacja:"k",deser:"d",s:"s",o:"o",k:"k",d:"d"};
+function pl(n,a,b,c){return n===1?a:(n%10>=2&&n%10<=4&&(n%100<12||n%100>14)?b:c)}
+function esc(x){return String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function norm(x){return String(x??"").toLowerCase().replace(/ł/g,"l").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/\s+/g," ").trim()}
+let NAMEMAP={};
+function buildNames(){NAMEMAP={};for(const [id,[nm]] of Object.entries(ING)){[id,nm,nm.split(/ \/| \(/)[0]].forEach(k=>{const n=norm(k);if(n&&!NAMEMAP[n])NAMEMAP[n]=id})}}
+function resolve(name){return NAMEMAP[norm(name)]||NAMEMAP[norm(String(name).split(/ \/| \(/)[0])]}
+function resolveCat(c){const n=norm(c);if(!n)return "inne";const hit=CATS.find(([id,nm])=>id===n||norm(nm)===n||norm(nm).startsWith(n)||n.startsWith(norm(nm).split(" ")[0]));return hit?hit[0]:"inne"}
+function newProd(name,cat,rep){const id=resolve(name);if(id)return id;const nid="x_"+norm(name).replace(/[^a-z0-9]+/g,"_");const nm=String(name).trim();ING[nid]=[nm.charAt(0).toUpperCase()+nm.slice(1),resolveCat(cat)];buildNames();if(rep)rep.prods++;return nid}
+function parseText(t){
+  t=String(t).replace(/```(json)?/gi,"").trim();
+  const a=Math.min(...["{","["].map(ch=>{const i=t.indexOf(ch);return i<0?1e9:i})), b=Math.max(t.lastIndexOf("}"),t.lastIndexOf("]"));
+  if(a===1e9||b<a)throw new Error("Tekst jest niepełny albo nie jest w formacie JSON — sprawdź, czy skopiowałeś całość, od pierwszego { do ostatniego }.");
+  try{return JSON.parse(t.slice(a,b+1))}catch(e){throw new Error("Tekst ma błąd w formacie JSON — najczęściej brakuje przecinka albo cudzysłowu. ("+e.message+")")}
+}
+function ingObj(v,rep){
+  const out={},add=(name,amt)=>{if(!name)return;out[newProd(name,null,rep)]=String(amt??"")};
+  if(Array.isArray(v))v.forEach(x=>typeof x==="string"?add(x,""):x&&add(x.nazwa||x.name,x.ilosc||x.ilość||x.amount));
+  else if(v&&typeof v==="object")Object.entries(v).forEach(([k,a])=>add(k,a));
+  return out;
+}
+function applyPack(obj,src,rep){
+  const recs=Array.isArray(obj)?obj:(obj.przepisy||obj.recipes||[]), prods=Array.isArray(obj)?[]:(obj.produkty||[]);
+  if(!Array.isArray(recs)||!recs.length)throw new Error("Nie znalazłem listy „przepisy” w pliku.");
+  prods.forEach(p=>{if(p&&p.nazwa)newProd(p.nazwa,p.kategoria,rep)});
+  recs.forEach((x,idx)=>{
+    if(!x||!x.nazwa){rep.skip.push(`#${idx+1}: brak nazwy`);return}
+    const i=ingObj(x.skladniki||x.składniki,rep);
+    if(!Object.keys(i).length){rep.skip.push(`„${x.nazwa}”: brak składników`);return}
+    let ms=x.posilki||x.posiłki||["obiad"];if(!Array.isArray(ms))ms=String(ms).split(/[,;\/]/);
+    const m=[...new Set(ms.map(z=>MEALMAP[norm(z)]).filter(Boolean))].join("")||"o";
+    const kroki=x.kroki||x.przygotowanie||[];
+    const r={n:String(x.nazwa),m,t:+x.czas||0,s:+x.porcje||1,k:+x.kcal||0,p:+(x.bialko??x.białko)||0,f:+(x.tluszcz??x.tłuszcz)||0,c:+(x.wegle??x.węgle??x.weglowodany)||0,i,o:ingObj(x.opcjonalne,rep),st:Array.isArray(kroki)?kroki.map(String):String(kroki).split(/\n+/).filter(Boolean),src};
+    const j=R.findIndex(y=>norm(y.n)===norm(r.n));if(j>=0)R.splice(j,1);
+    R.push(r);rep.recs++;
+  });
+}
+let PACKS=[];
+try{PACKS=JSON.parse(localStorage.getItem("lodowka_packs")||"[]")}catch(e){PACKS=[]}
+function savePacks(){try{localStorage.setItem("lodowka_packs",JSON.stringify(PACKS));return true}catch(e){return false}}
+function rebuild(){
+  for(const k of Object.keys(ING))if(!BASE_ING[k])delete ING[k];
+  R.length=0;BASE_R.forEach(r=>R.push(r));buildNames();
+  PACKS.forEach(pk=>{try{applyPack(pk.data,pk.name,{recs:0,prods:0,skip:[]})}catch(e){}});
+  [...sel].forEach(x=>{if(!ING[x])sel.delete(x)});
+}
+function addPack(text,name,boxId){
+  const box=$(boxId||"msg");
+  try{
+    const data=parseText(text);
+    if(data&&data.typ==="co-z-lodowki-kopia"){
+      staples=new Set(data.staples||[]);FAV=new Set(data.fav||[]);HIDE=new Set(data.hide||[]);saveHide();HIST=data.hist||{};PACKS=Array.isArray(data.packs)?data.packs:[];
+      save();saveFav();saveHist();savePacks();rebuild();renderPick();renderManage();
+      box.className="msg ok";box.textContent=`✓ Przywrócono kopię z ${data.utworzono||"?"}: ${staples.size} stałych produktów, ${FAV.size} ulubionych, ${PACKS.length} pakietów.`;$("paste").value="";return;
+    }
+    const rep={recs:0,prods:0,skip:[]};
+    // test na kopii, żeby nie zepsuć bazy przy błędzie
+    applyPack(data,name,rep);
+    if(!rep.recs)throw new Error("Żaden przepis nie przeszedł sprawdzenia. "+rep.skip.join("; "));
+    const nm=(data&&!Array.isArray(data)&&data.nazwa)||name;
+    PACKS=PACKS.filter(p=>p.name!==nm);PACKS.push({name:nm,date:new Date().toLocaleDateString("pl-PL"),count:rep.recs,data});
+    const stored=savePacks();rebuild();renderPick();renderManage();
+    box.className="msg ok";box.innerHTML=`✓ Dodano ${rep.recs} ${pl(rep.recs,"przepis","przepisy","przepisów")}`+(rep.prods?` i ${rep.prods} ${pl(rep.prods,"nowy produkt","nowe produkty","nowych produktów")}`:"")+`.`+(rep.skip.length?`<br>Pominięto: ${esc(rep.skip.join("; "))}`:"")+(stored?"":"<br>Uwaga: ta przeglądarka nie pozwala zapisać danych na stałe — po zamknięciu trzeba będzie wgrać plik ponownie.");
+    $("paste").value="";
+  }catch(e){rebuild();box.className="msg err";box.textContent="✗ "+e.message}
+}
+const TPL={nazwa:"Mój pakiet",przepisy:[{nazwa:"Tofu smażone z warzywami",posilki:["obiad","kolacja"],czas:20,porcje:2,kcal:420,bialko:24,tluszcz:18,wegle:40,skladniki:{"Tofu":"200 g","Papryka":"1 szt.","Ryż":"150 g","Sos sojowy":"2 łyżki"},opcjonalne:{"Sezam":"1 łyżka"},kroki:["Pokrój tofu w kostkę i obsmaż na złoto.","Dodaj paprykę w paskach i smaż 5 minut.","Dopraw sosem sojowym, podawaj z ryżem."]}],produkty:[{nazwa:"Tofu",kategoria:"Mięso i ryby"},{nazwa:"Sezam",kategoria:"Sosy i dodatki"}]};
+function promptText(){
+  return `Przygotuj przepisy do mojej aplikacji kulinarnej. Odpowiedz WYŁĄCZNIE kodem JSON (bez komentarzy) w dokładnie takim formacie:
+
+${JSON.stringify(TPL,null,2)}
+
+Zasady:
+- "posilki": jedna lub kilka wartości z listy: "śniadanie", "obiad", "kolacja", "deser".
+- "czas" w minutach; "kcal", "bialko", "tluszcz", "wegle" (w gramach) podaj NA 1 PORCJĘ, realistycznie.
+- "skladniki" to składniki niezbędne, "opcjonalne" to dodatki, bez których danie się uda.
+- Nie wpisuj soli, pieprzu, oleju, cukru ani wody — zakładam, że są w domu.
+- Nazwy składników bierz w miarę możliwości z tej listy produktów (pisz je dokładnie tak samo): ${Object.values(ING).map(v=>v[0]).join(", ")}.
+- Jeśli potrzebujesz produktu spoza listy, dopisz go w sekcji "produkty" z kategorią z listy: ${CATS.filter(c=>c[0]!=="inne").map(c=>c[1]).join(", ")}.
+- "nazwa" na początku to nazwa całego pakietu.
+
+Przepisy, które chcę: `;
+}
+async function copy(text,label){
+  const m=$("copyMsg");
+  try{if(window.Android&&Android.copy)Android.copy(text);else await navigator.clipboard.writeText(text);m.className="msg ok";m.textContent=`✓ Skopiowano ${label}. Wklej w czacie AI i dopisz, jakie przepisy chcesz.`}
+  catch(e){$("paste").value=text;$("paste").focus();$("paste").select();m.className="msg err";m.textContent="Nie udało się skopiować automatycznie — tekst jest w polu wyżej, zaznacz go i skopiuj ręcznie."}
+}
+async function shareText(text,box,what){
+  const m=$(box);
+  try{
+    if(window.Android&&Android.share){Android.share(text);m.className="msg ok";m.textContent=`Wybierz, gdzie wysłać ${what}.`;return}
+    if(navigator.share&&window.top===window){try{await navigator.share({text});m.className="msg ok";m.textContent="✓ Wysłano.";return}catch(err){if(err&&err.name==="AbortError")return}}
+    await navigator.clipboard.writeText(text);m.className="msg ok";m.textContent=`✓ Skopiowano ${what} do schowka — wklej ją, gdzie chcesz (mail, notatki, komunikator).`;
+  }catch(e){$("paste").value=text;m.className="msg err";m.textContent="Nie udało się skopiować automatycznie — tekst jest w polu „Wklej przepisy” (Dla zaawansowanych), skopiuj go ręcznie."}
+}
+function backupObj(){return {typ:"co-z-lodowki-kopia",utworzono:new Date().toLocaleString("pl-PL"),staples:[...staples],fav:[...FAV],hide:[...HIDE],hist:HIST,packs:PACKS}}
+function renderManage(){
+  $("stats").textContent=`W aplikacji: ${R.length} przepisów (${BASE_R.length} wbudowanych + ${R.filter(r=>r.src).length} dodanych) i ${Object.keys(ING).length} produktów.`;
+  $("packs").innerHTML=PACKS.length?PACKS.map((p,i)=>`<div class="pack"><div><b>${esc(p.name)}</b><div class="small">${p.count} ${pl(p.count,"przepis","przepisy","przepisów")} · dodano ${esc(p.date)}</div></div><button data-share="${i}">Udostępnij</button><button data-del="${i}">Usuń</button></div>`).join(""):`<p class="small">Nie masz jeszcze wgranych pakietów.</p>`;
+  $("tpl").textContent=JSON.stringify(TPL,null,2);
+  if(typeof renderBuiltin==="function")renderBuiltin();
+  const hs=Object.entries(HIST).sort((a,b)=>b[1].last-a[1].last);
+  const hn=Object.keys(HIST).length;
+  $("histList").innerHTML=(hn?`<p class="small" style="margin:0 0 6px">Zapamiętane dania: ${hn}. Szczegóły znajdziesz w zakładce Historia.</p><div class="row"><button class="btn sec" id="clrHist">Wyczyść historię</button></div>`:`<p class="small">Pusto. Po ugotowaniu dania stuknij przy nim „✓ Zrobiłem to”.</p>`);
+  $("stapleSum").textContent=staples.size?`Masz ${staples.size} ${pl(staples.size,"stały produkt","stałe produkty","stałych produktów")}: ${[...staples].filter(x=>ING[x]).map(x=>ING[x][0]).join(", ")}.`:"Nie masz jeszcze stałych produktów. Ustaw rzeczy, które zawsze są w domu (np. jajka, mleko, mąka) — nie trzeba będzie ich zaznaczać.";
+  const ch=$("clrHist");if(ch)ch.onclick=()=>{if(ch.dataset.sure){HIST={};saveHist();renderManage()}else{ch.dataset.sure="1";ch.textContent="Na pewno? Stuknij ponownie"}};
+}
+$("packs").addEventListener("click",e=>{const sh=e.target.closest("[data-share]");if(sh){const pk=PACKS[+sh.dataset.share];shareText(JSON.stringify(Object.assign({nazwa:pk.name},pk.data),null,1),"packMsg","pakiet „"+pk.name+"”");return}
+  const b=e.target.closest("[data-del]");if(!b)return;const p=PACKS[+b.dataset.del];
+  if(b.dataset.sure){PACKS.splice(+b.dataset.del,1);savePacks();rebuild();renderPick();renderManage();$("packMsg").className="msg ok";$("packMsg").textContent=`Usunięto pakiet „${p.name}”.`}
+  else{b.dataset.sure="1";b.textContent="Na pewno? Kliknij ponownie"}});
+$("file").addEventListener("change",e=>{const f=e.target.files&&e.target.files[0];if(!f)return;
+  const box=$("msg");box.className="msg ok";box.textContent="Wczytuję plik „"+f.name+"”…";
+  const done=t=>{addPack(t,f.name.replace(/\.(json|txt)$/i,""));e.target.value=""};
+  const fail=()=>{box.className="msg err";box.textContent="✗ Nie udało się odczytać pliku. Otwórz go w dowolnej aplikacji do tekstu, skopiuj całość i wklej w pole poniżej.";e.target.value=""};
+  try{const r=new FileReader();r.onload=()=>done(String(r.result));r.onerror=fail;r.readAsText(f,"utf-8")}catch(err){fail()}
+});
+$("addPaste").onclick=()=>{const t=$("paste").value.trim();if(!t){$("msg").className="msg err";$("msg").textContent="Pole jest puste — wklej najpierw tekst z przepisami.";return}addPack(t,"Wklejone "+new Date().toLocaleDateString("pl-PL"))};
+$("copyPrompt").onclick=()=>copy(promptText(),"polecenie");
+$("copyTpl").onclick=()=>copy(JSON.stringify(TPL,null,2),"wzór");
+$("hideList").addEventListener("click",e=>{const b=e.target.closest("[data-unhide]");if(!b)return;HIDE.delete(norm(b.dataset.unhide));saveHide();renderFavs()});
+$("tabs").addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(!b)return;({pick:showPick,favs:showFavs,manage:showManage})[b.dataset.tab]()});
+$("editStaples").onclick=()=>{mode="staple";showPick();renderPick()};
+$("backupBtn").onclick=()=>shareText(JSON.stringify(backupObj()),"backupMsg","kopię zapasową");
+if(window.top===window){const h=$("webHint");if(h)h.classList.add("hide")}
+if(window.Android){const h=$("webHint");if(h)h.classList.add("hide");document.documentElement.classList.add("in-app")}
+// przycisk „wstecz” w aplikacji na Androida
+window.appBack=function(){
+  if($("pick").classList.contains("hide")){showPick();return}
+  if($("q").value){$("q").value="";filter();return}
+  if(mode==="staple"){mode="today";renderPick();return}
+  if(window.Android&&Android.exit)Android.exit();
+};
+
+const BUILTIN=[{"nazwa": "Wege i szybkie", "przepisy": [{"nazwa": "Tofu smażone z warzywami i ryżem", "posilki": ["obiad", "kolacja"], "czas": 25, "porcje": 2, "kcal": 520, "bialko": 24, "tluszcz": 18, "wegle": 64, "skladniki": {"Tofu": "200 g", "Papryka": "1 szt.", "Ryż": "150 g", "Sos sojowy": "3 łyżki"}, "opcjonalne": {"Sezam": "1 łyżka", "Czosnek": "2 ząbki", "Brokuł": "200 g"}, "kroki": ["Ugotuj ryż.", "Odsącz tofu, pokrój w kostkę i obsmaż na złoto z każdej strony.", "Dodaj paprykę i czosnek, smaż 5 minut, wlej sos sojowy i posyp sezamem."]}, {"nazwa": "Hummus z warzywami", "posilki": ["kolacja", "śniadanie"], "czas": 10, "porcje": 3, "kcal": 260, "bialko": 9, "tluszcz": 14, "wegle": 24, "skladniki": {"Ciecierzyca": "400 g", "Tahini": "2 łyżki", "Cytryna": "1 szt.", "Czosnek": "1 ząbek"}, "opcjonalne": {"Marchew": "do maczania", "Ogórek": "do maczania", "Papryka": "do maczania"}, "kroki": ["Odsącz ciecierzycę, zachowaj trochę zalewy.", "Zmiksuj z tahini, sokiem z cytryny, czosnkiem, solą i 3 łyżkami oliwy, dolewając zalewy do gładkości.", "Podawaj z pokrojonymi warzywami lub pieczywem."]}, {"nazwa": "Curry z ciecierzycy i szpinaku", "posilki": ["obiad"], "czas": 25, "porcje": 3, "kcal": 420, "bialko": 14, "tluszcz": 20, "wegle": 46, "skladniki": {"Ciecierzyca": "400 g", "Mleczko kokosowe": "400 ml", "Szpinak": "150 g", "Curry": "1 łyżka", "Cebula": "1 szt."}, "opcjonalne": {"Ryż": "do podania", "Imbir": "kawałek", "Passata": "200 g"}, "kroki": ["Podsmaż cebulę z curry i imbirem.", "Dodaj ciecierzycę i mleczko kokosowe, gotuj 10 minut.", "Wmieszaj szpinak, dopraw i podawaj z ryżem."]}, {"nazwa": "Makaron z cukinią i fetą", "posilki": ["obiad", "kolacja"], "czas": 20, "porcje": 2, "kcal": 560, "bialko": 20, "tluszcz": 18, "wegle": 78, "skladniki": {"Makaron": "200 g", "Cukinia": "1 szt.", "Feta": "100 g", "Czosnek": "2 ząbki"}, "opcjonalne": {"Cytryna": "½ szt.", "Natka pietruszki": "garść"}, "kroki": ["Ugotuj makaron.", "Podsmaż czosnek, dodaj cukinię w półplasterkach i smaż 5–6 minut.", "Połącz z makaronem, pokrusz fetę, skrop cytryną."]}, {"nazwa": "Burgery z fasoli", "posilki": ["obiad", "kolacja"], "czas": 30, "porcje": 2, "kcal": 450, "bialko": 18, "tluszcz": 12, "wegle": 64, "skladniki": {"Fasola": "400 g", "Bułka tarta": "50 g", "Cebula": "1 szt.", "Jajka": "1 szt."}, "opcjonalne": {"Bułki do burgerów": "2 szt.", "Sałata": "kilka liści", "Pomidory": "1 szt.", "Ketchup": "do podania"}, "kroki": ["Rozgnieć odsączoną fasolę, dodaj posiekaną cebulę, jajko, bułkę tartą i przyprawy.", "Uformuj 4 kotlety.", "Smaż po 4 minuty z każdej strony, podawaj w bułkach z warzywami."]}, {"nazwa": "Tofucznica", "posilki": ["śniadanie"], "czas": 10, "porcje": 1, "kcal": 280, "bialko": 22, "tluszcz": 18, "wegle": 6, "skladniki": {"Tofu": "180 g", "Cebula": "½ szt."}, "opcjonalne": {"Pomidory": "1 szt.", "Szczypiorek": "garść", "Chleb": "2 kromki"}, "kroki": ["Zeszklij cebulę na oleju.", "Dodaj rozgniecione widelcem tofu, dopraw solą, pieprzem i szczyptą kurkumy.", "Smaż 5 minut, posyp szczypiorkiem."]}, {"nazwa": "Sałatka z soczewicą i fetą", "posilki": ["kolacja", "obiad"], "czas": 25, "porcje": 2, "kcal": 380, "bialko": 20, "tluszcz": 14, "wegle": 40, "skladniki": {"Soczewica": "150 g", "Feta": "80 g", "Pomidory": "2 szt."}, "opcjonalne": {"Rukola": "garść", "Ogórek": "1 szt.", "Cytryna": "½ szt."}, "kroki": ["Ugotuj soczewicę (ok. 15 minut) i ostudź.", "Wymieszaj z pokrojonymi warzywami i pokruszoną fetą.", "Dopraw oliwą, cytryną, solą i pieprzem."]}, {"nazwa": "Owsianka nocna z masłem orzechowym", "posilki": ["śniadanie"], "czas": 5, "porcje": 1, "kcal": 450, "bialko": 18, "tluszcz": 16, "wegle": 58, "skladniki": {"Płatki owsiane": "60 g", "Jogurt naturalny": "150 g", "Masło orzechowe": "1 łyżka"}, "opcjonalne": {"Banan": "1 szt.", "Borówki": "garść", "Miód": "1 łyżeczka"}, "kroki": ["Wymieszaj płatki z jogurtem i 50 ml mleka lub wody.", "Wstaw na noc do lodówki.", "Rano dodaj masło orzechowe i owoce."]}, {"nazwa": "Kanapki z hummusem i warzywami", "posilki": ["śniadanie", "kolacja"], "czas": 5, "porcje": 1, "kcal": 340, "bialko": 12, "tluszcz": 12, "wegle": 44, "skladniki": {"Chleb": "2 kromki", "Hummus": "3 łyżki"}, "opcjonalne": {"Ogórek": "plastry", "Pomidory": "plastry", "Rukola": "garść"}, "kroki": ["Posmaruj chleb hummusem.", "Ułóż warzywa.", "Dopraw pieprzem."]}, {"nazwa": "Daktylowe kulki mocy", "posilki": ["deser"], "czas": 15, "porcje": 12, "kcal": 90, "bialko": 2, "tluszcz": 4, "wegle": 12, "skladniki": {"Daktyle": "150 g", "Orzechy": "100 g", "Kakao": "1 łyżka"}, "opcjonalne": {"Płatki owsiane": "30 g", "Masło orzechowe": "1 łyżka"}, "kroki": ["Namocz daktyle 10 minut w ciepłej wodzie i odsącz.", "Zmiksuj z orzechami i kakao na lepką masę.", "Formuj kulki i schłodź 30 minut."]}], "produkty": [{"nazwa": "Tofu", "kategoria": "Mięso i ryby"}, {"nazwa": "Tahini", "kategoria": "Sosy i dodatki"}, {"nazwa": "Hummus", "kategoria": "Sosy i dodatki"}, {"nazwa": "Sezam", "kategoria": "Sosy i dodatki"}, {"nazwa": "Daktyle", "kategoria": "Do wypieków i słodkie"}, {"nazwa": "Bułki do burgerów", "kategoria": "Pieczywo, makaron, kasze"}], "opis": "dania wegetariańskie i szybkie śniadania"}];
+function renderBuiltin(){$("builtin").innerHTML=BUILTIN.map((b,i)=>{const on=PACKS.some(p=>p.name===b.nazwa);return `<div class="pack"><div><b>${esc(b.nazwa)}</b><div class="small">${b.przepisy.length} ${pl(b.przepisy.length,"przepis","przepisy","przepisów")}${b.opis?" · "+esc(b.opis):""}</div></div>${on?'<span class="small">✓ dodany</span>':`<button data-bi="${i}">Dodaj</button>`}</div>`}).join("")}
+$("builtin").addEventListener("click",e=>{const b=e.target.closest("[data-bi]");if(!b)return;addPack(JSON.stringify(BUILTIN[+b.dataset.bi]),BUILTIN[+b.dataset.bi].nazwa,"biMsg");renderBuiltin()});
+function renderFavs(){
+  const favR=R.filter(r=>isFav(r)&&(meal==="all"||r.m.includes(meal))).map(score);
+  favR.sort((a,b)=>a.miss-b.miss||((HIST[hkey(b.r)]?.n||0)-(HIST[hkey(a.r)]?.n||0))||a.r.n.localeCompare(b.r.n,"pl"));
+  const total=R.filter(isFav).length;
+  $("favList").innerHTML=favR.length?favR.map(x=>card(x).replace('<span class="badge warn">Brakuje: '+x.miss+'</span>',x.miss?`<span class="badge warn">Brakuje: ${x.miss}</span>`:"")).join("")
+    :`<div class="empty">${total?`Brak ulubionych w kategorii „${MEALNAME[meal]}”. Wybierz „Wszystko” u góry.`:"Nie masz jeszcze ulubionych dań.<br>Stuknij ♡ przy daniu w propozycjach, a pojawi się tutaj."}</div>`;
+  const hl=R.filter(isHid);
+  $("hideList").innerHTML=hl.length?hl.map(r=>`<div class="often"><span>${esc(r.n)}</span><button data-unhide="${esc(r.n)}">↩︎ Przywróć</button></div>`).join(""):`<p class="small">Brak. Stuknij „🚫 Nie proponuj” przy daniu, którego nie lubisz — spadnie na sam koniec propozycji.</p>`;
+  const rec=Object.entries(HIST).sort((a,b)=>b[1].last-a[1].last).slice(0,15).map(([k,h])=>[R.find(r=>hkey(r)===k),h]).filter(x=>x[0]);
+  $("recentList").innerHTML=rec.length?rec.map(([r,h])=>`<details class="rec"><summary><span>${isFav(r)?"❤️ ":""}${esc(r.n)}</span><span class="small">${h.n}× · ${ago(h.last)}</span></summary>${card(score(r))}</details>`).join(""):`<p class="small">Jeszcze nic. Po ugotowaniu dania stuknij przy nim „✓ Zrobiłem to”.</p>`;
+  const often=R.filter(r=>!isFav(r)&&(HIST[hkey(r)]?.n||0)>=2).sort((a,b)=>HIST[hkey(b)].n-HIST[hkey(a)].n).slice(0,8);
+  $("oftenCard").classList.toggle("hide",!often.length);
+  $("oftenList").innerHTML=often.map(r=>`<div class="often"><span>${esc(r.n)} <span class="small">· ${HIST[hkey(r)].n}×</span></span><button data-addfav="${esc(r.n)}">♡ Dodaj</button></div>`).join("");
+}
+rebuild();
+setMeal();renderPick();
+</script>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").catch(()=>{})})}</script>
+</body>
+</html>
