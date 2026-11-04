@@ -6,7 +6,7 @@ Aplikacja, która podpowiada, co ugotować z produktów, które masz w domu. Dzi
 
 ## Instalacja na telefonie
 - **iPhone:** otwórz link w Safari, stuknij **Udostępnij** i wybierz **Do ekranu początkowego**.
-- **Android:** otwórz link w Chrome, stuknij menu **⋮** i wybierz **Dodaj do ekranu głównego** (albo zainstaluj plik APK).
+- **Android:** otwórz link w Chrome, stuknij menu **⋮** i wybierz **Dodaj do ekranu głównego**. Możesz też pobrać aplikację: https://geezotto-pl.github.io/co-z-lodowki/co-z-lodowki.apk
 
 ## Funkcje
 - 85 przepisów z kaloriami i makroskładnikami, z podziałem na śniadanie, obiad, kolację i deser.
